@@ -4,7 +4,7 @@
     # Run: .venv\Scripts\activate     
 
 # To push
-    # Commit on my branch, then push on my branch (sync)
+    # Commit on my branch, then push on my branch (Commit, then sync on vsc)
     #Go to github, and send pull request
     #Then tell Rui Anh-sama to approve
 
