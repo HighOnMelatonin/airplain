@@ -3,6 +3,7 @@
 import os
 import netCDF4 as nc
 import json
+import xarray
 
 ## China file type is nc, NetCDF
 
@@ -42,7 +43,7 @@ def ncToCsv(year: str) -> None:
     with nc.Dataset(filepath, 'r') as dataset:
         # Extract PM2.5 data
         print(dataset.variables['PM2.5'].size)
-        print(dataset.variables['PM2.5'][0][0].datatype)  # Check the data type of PM2.5 values  # pyright: ignore[reportAny]
+        print(dataset.variables['PM2.5'][0][0])  # Check the data type of PM2.5 values  # pyright: ignore[reportAny]
         pm25_data = dataset.variables['PM2.5'][:]  # pyright: ignore[reportAny]
         print(len(pm25_data))  # pyright: ignore[reportAny]
 
@@ -55,6 +56,8 @@ def ncToCsv(year: str) -> None:
     ### Processing done, output is ready
     with open(outputName, 'w') as f:
         f.write(output)  # pyright: ignore[reportUnusedCallResult]
+        ## UNCOMMENT WHEN READY TO MARK AS PROCESSED
+        # markProcessed(year)  # Mark the year as processed
     print(f"Data for {year} processed and saved to {outputName}")
 
     return None
