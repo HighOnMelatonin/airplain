@@ -42,9 +42,9 @@ def ncToCsv(year: str) -> None:
     with nc.Dataset(filepath, 'r') as dataset:
         # Extract PM2.5 data
         print(dataset.variables['PM2.5'].size)
-        print(dataset.variables['PM2.5'][0][0].datatype)  # Check the data type of PM2.5 values
-        pm25_data = dataset.variables['PM2.5'][:]
-        print(len(pm25_data))
+        print(dataset.variables['PM2.5'][0][0].datatype)  # Check the data type of PM2.5 values  # pyright: ignore[reportAny]
+        pm25_data = dataset.variables['PM2.5'][:]  # pyright: ignore[reportAny]
+        print(len(pm25_data))  # pyright: ignore[reportAny]
 
         # for record in pm25_data:
         #     # Assuming the record is a 1D array of PM2.5 values
@@ -54,7 +54,7 @@ def ncToCsv(year: str) -> None:
 
     ### Processing done, output is ready
     with open(outputName, 'w') as f:
-        f.write(output)
+        f.write(output)  # pyright: ignore[reportUnusedCallResult]
     print(f"Data for {year} processed and saved to {outputName}")
 
     return None
@@ -78,8 +78,8 @@ def checkProcessed(year:str) -> bool:
         file.close()
 
     with open(filepath, 'r') as f:
-        years = json.load(f)
-        if years[year]:
+        years: dict[str, bool] = json.load(f)
+        if years.get(year, False):
             return True
         else:
             return False
@@ -99,16 +99,16 @@ def markProcessed(year: str) -> None:
     # Ensure the file exists, create it if it does not
     if not os.path.exists(filepath):
         file = open(filepath, 'x')
-        file.write('{}')  # Initialize with an empty JSON object
+        file.write('{}')  # Initialize with an empty JSON object  # pyright: ignore[reportUnusedCallResult]
         file.close()
 
     with open(filepath, 'r+') as f:
-        years = json.load(f)
+        years: dict[str, bool] = json.load(f)
         years[year] = True
-        f.seek(0)
-        json.dump(years, f)
+        f.seek(0)  # pyright: ignore[reportUnusedCallResult]
+        json.dump(years, f, indent=4)
 
-def readProcessed() -> dict:
+def readProcessed() -> dict[str, bool]:
     """
     Convert a JSON file to a Python dictionary for easy access to processed years.
     
@@ -124,7 +124,7 @@ def readProcessed() -> dict:
         raise FileNotFoundError(f"File {filepath} does not exist.")
     
     with open(filepath, 'r') as f:
-        data = json.load(f)
+        data: dict[str, bool] = json.load(f)
 
     return data
 
