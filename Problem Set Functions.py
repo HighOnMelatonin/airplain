@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import matplotlib.axes as axes
 import seaborn as sns
 
-def convert_df_to_np(array: np.ndarry | pd.DataFrame) -> np.ndarray:
+def convert_df_to_np(array: np.ndarray | pd.DataFrame) -> np.ndarray: # type: ignore
     if isinstance(array, pd.DataFrame):
         array: np.ndarray = array.to_numpy()
     return array
 
-def normalize_z(array: np.ndarray, columns_means: Optional[np.ndarray]=None, 
-                columns_stds: Optional[np.ndarray]=None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def normalize_z(array: np.ndarray, columns_means: Optional[np.ndarray]=None,  # type: ignore
+                columns_stds: Optional[np.ndarray]=None) -> tuple[np.ndarray, np.ndarray, np.ndarray]: # type: ignore
     assert columns_means is None or columns_means.shape == (1, array.shape[1])
     assert columns_stds is None or columns_stds.shape == (1, array.shape[1])
 
@@ -38,7 +38,7 @@ def get_features_targets(df: pd.DataFrame,
     
     return features, df_target
 
-def prepare_feature(np_feature: np.ndarray) -> np.ndarray:
+def prepare_feature(np_feature: np.ndarray) -> np.ndarray: # type: ignore
     np_feature: np.ndarray = convert_df_to_np(np_feature)
     one_array: np.ndarray = np.ones((np_feature.shape[0],1))
     result: np.ndarray = np.concatenate((one_array, np_feature), axis=1)
@@ -49,9 +49,8 @@ def predict_linreg(array_feature: np.ndarray, beta: np.ndarray,
                    stds: Optional[np.ndarray]=None) -> np.ndarray:
     assert means is None or means.shape == (1, array_feature.shape[1])
     assert stds is None or stds.shape == (1, array_feature.shape[1])
-    X: np.ndarray
-    X = convert_df_to_np(X)
-    X, _, _ = normalize_z(array_feature, means, stds)
+    X: np.ndarray = convert_df_to_np(array_feature)
+    X, _, _ = normalize_z(X, means, stds)
     X = prepare_feature(X)
     result: np.ndarray = calc_linreg(X, beta)
     
@@ -74,8 +73,8 @@ def split_data(df_feature: pd.DataFrame, df_target: pd.DataFrame,
     
     df_feature_test: pd.DataFrame = df_feature.loc[test_indices,:]
     df_target_test: pd.DataFrame = df_target.loc[test_indices,:]
-    df_feature_train: pd.DataFrame = df_feature.drop(index=test_indices)
-    df_target_train: pd.DataFrame = df_target.drop(index=test_indices)
+    df_feature_train: pd.DataFrame = df_feature.drop(index=test_indices) # type: ignore
+    df_target_train: pd.DataFrame = df_target.drop(index=test_indices) # type: ignore
 
     return df_feature_train, df_feature_test, df_target_train, df_target_test
 
@@ -84,14 +83,14 @@ def r2_score(y: np.ndarray, ypred: np.ndarray) -> float:
     ss_res: np.ndarray = np.sum( y_diff.T @ y_diff )
     y_mean_diff: np.ndarray = y - y.mean()
     ss_tot: np.ndarray = np.sum( y_mean_diff.T @ y_mean_diff )
-    return 1- (ss_res / ss_tot)
+    return float(1 - (ss_res / ss_tot))
 
 def mean_squared_error(target: np.ndarray, pred: np.ndarray) -> float:
 
     y_diff: np.ndarray = target - pred
     total: np.ndarray = np.sum(y_diff.T @ y_diff)
     n: int = target.shape[0]
-    return total / n
+    return float(total / n)
 
 def compute_cost_linreg(X: np.ndarray, y: np.ndarray, beta: np.ndarray) -> np.ndarray:
     y_hat: np.ndarray = calc_linreg(X, beta)
@@ -101,7 +100,7 @@ def compute_cost_linreg(X: np.ndarray, y: np.ndarray, beta: np.ndarray) -> np.nd
     assert J.shape == (1, 1)
     return np.squeeze(J)
 
-def gradient_descent_linreg(X: np.ndarray, y: np.ndarray, beta: np.ndarray, 
+def gradient_descent_linreg(X: np.ndarray, y: np.ndarray, beta: np.ndarray,   # type: ignore
                             alpha: float, num_iters: int) -> tuple[np.ndarray, np.ndarray]:
     
     m: int = X.shape[0]
