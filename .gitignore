@@ -2,6 +2,8 @@
 ~/venv/
 /wh stuff.py
 
+*.vscode/
+
 /__pycache__/
 
 .python-version
