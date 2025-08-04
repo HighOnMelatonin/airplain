@@ -135,7 +135,7 @@ def trimRegionCode(filename: str) -> None:
 
     for region in regionRaw:  # pyright: ignore[reportUnknownVariableType]
         item: dict[str, str] = regionRaw[region]  # pyright: ignore[reportUnknownVariableType]
-        regionMap[item["Code_1"]] = item["Naam_2"].strip()   # pyright: ignore[reportUnknownMemberType]
+        regionMap[item["Code_1"].strip()] = item["Naam_2"].strip()   # pyright: ignore[reportUnknownMemberType]
 
     if not os.path.exists("datafiles/region_map.json"):
         f = open("datafiles/region_map.json", 'x')  # pyright: ignore[reportUnusedCallResult]
@@ -185,10 +185,10 @@ def trimPM() -> bool:
 if __name__ == "__main__":
     # Example usage
     try:
-        # trimRegionCode()
+        trimRegionCode("reregion_code")
         # print(popDensity())
         # print(trimPM())
-        print(trimProximity())
+        # print(trimProximity())
     except FileNotFoundError as e:
         print(e)
     except Exception as e:
