@@ -36,13 +36,6 @@ def popDensity() -> bool:
     output: str = ''
     popDensityFile: str = "datafiles/Netherlands_population_density.csv"
 
-    jsonOutPath: str = "datafiles/processed_pop_density.json"
-    ## If output file does not exist, create it and initialize with an empty JSON object
-    if not os.path.exists(path=jsonOutPath):
-        f = open(jsonOutPath, 'x')
-        json.dump({}, f)
-        f.close()
-
     csvOutPath: str = "datafiles/processed_pop_density.csv"
     ## If output csv file does not exist, create it
     if not os.path.exists(path=csvOutPath):
@@ -100,7 +93,6 @@ def popDensity() -> bool:
 
     print(array)
     
-    json.dump(obj=jsonOutput, fp=open(file=jsonOutPath, mode="w"), indent=4)  # pyright: ignore[reportUnknownVariableType, reportCallIssue]
     return True
 
 def trimRegionCode() -> None:
