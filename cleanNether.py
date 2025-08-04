@@ -19,7 +19,7 @@ def openJson(filepath: str) -> dict:  # pyright: ignore[reportUnknownParameterTy
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File {filepath} does not exist.")
     
-    f = open(filepath, 'r', encoding='utf-8')  # pyright: ignore[reportUnknownVariableType, reportArgumentType]
+    f = open(filepath, 'r', encoding='utf-8')
     data: dict = json.load(f)  # pyright: ignore[reportAny, reportMissingTypeArgument]
 
     f.close()
@@ -27,7 +27,7 @@ def openJson(filepath: str) -> dict:  # pyright: ignore[reportUnknownParameterTy
 
 def popDensity() -> bool:
     """
-    Returns True if population density data has been processed, False otherwise.
+    Returns True when population density data has been processed, False otherwise.
 
     Output file: datafiles/processed_pop_density.csv
     """
@@ -138,11 +138,11 @@ def trimRegionCode(filename: str) -> None:
         regionMap[item["Code_1"].strip()] = item["Naam_2"].strip()   # pyright: ignore[reportUnknownMemberType]
 
     if not os.path.exists("datafiles/region_map.json"):
-        f = open("datafiles/region_map.json", 'x')  # pyright: ignore[reportUnusedCallResult]
-        json.dump({}, f)  # Initialize with an empty JSON object  # pyright: ignore[reportUnusedCallResult]
+        f = open("datafiles/region_map.json", 'x')
+        json.dump({}, f)  # Initialize with an empty JSON object
         f.close()
 
-    json.dump(regionMap, open("datafiles/region_map.json", "w"), indent=4)  # pyright: ignore[reportUnknownVariableType, reportCallIssue]
+    json.dump(regionMap, open("datafiles/region_map.json", "w"), indent=4)
 
     return None
 
@@ -163,7 +163,7 @@ def trimPM() -> bool:
     
     ## Uncomment the next line once regionMap is available
     # regionMap: dict[str, str] = openJson("datafiles/region_map2.json")  # pyright: ignore[reportUnknownVariableType]
-    with open(pmFile, 'r') as f:  # pyright: ignore[reportUnknownVariableType]
+    with open(pmFile, 'r') as f:
         lines: list[str] = f.readlines()
 
         ## Iterate through the lines and standardise empty values, and translate region codes
@@ -174,7 +174,7 @@ def trimPM() -> bool:
             # lines[i] = line.replace(code, regionMap[code])  # Uncomment once regionMap is available
         print(lines[:61])
     
-    print(lines, file=open(outputFile, 'w'))  # pyright: ignore[reportUnknownVariableType]
+    print(lines, file=open(outputFile, 'w'))
     return True
 
 
@@ -185,7 +185,7 @@ def trimPM() -> bool:
 if __name__ == "__main__":
     # Example usage
     try:
-        trimRegionCode("reregion_code")
+        # trimRegionCode("reregion_code")
         # print(popDensity())
         # print(trimPM())
         # print(trimProximity())
