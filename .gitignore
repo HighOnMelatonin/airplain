@@ -1,5 +1,12 @@
 ~/.venv/
 ~/venv/
+/wh stuff.py
+
+*.vscode/
 
 /__pycache__/
+
+.python-version
+pyproject.toml
+uv.lock
 

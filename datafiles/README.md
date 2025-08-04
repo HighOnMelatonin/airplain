@@ -1,21 +1,15 @@
 # About datafiles
 ## Constraints/Constants
-- Time period: 2013 - 2023
-- 
+- Time period: 2021
 
 ## Lists
-Country Data:
-1. (Netherlands)[https://www.luchtmeetnet.nl/informatie/download-data/open-data]
-2. (Seoul)[
-
-API Data:
-1. (Netherlands)[https://www.luchtmeetnet.nl/informatie/download-data/api.luchtmeetnet.nl]
-
-## Data Parameters:
-### Netherlands
-
-### Seoul
-Description in the (csv)[/seoul-air-pollution-meter-information.csv] or (json)[/seoul-air-pollution-meter-information.json].<br> 
-Key indicator: Metric code 9 means PM2.5
+Data source:
+1. [China PM2.5](https://zenodo.org/communities/chap/records?q=&l=list&p=2&s=10&sort=newest)
 
 
+## Interpreting the Raw data:
+Raw data from the source was provided in .nc format, we had to convert this file format into .csv, which is more readable and compatible with excel (for MU)
+
+### File paths
+- [2020 raw](/CHAP_PM2.5_Y1K_2021_V4.nc)
+- [2020 processed](/processed_CHAP_PM2.5_2021.csv)
