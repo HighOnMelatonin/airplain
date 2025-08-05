@@ -1,15 +1,21 @@
 # About datafiles
 ## Constraints/Constants
-- Time period: 2021
+- Time period: 2013 - 2023; not all time periods have datasets
+- 
 
 ## Lists
-Data source:
-1. [China PM2.5](https://zenodo.org/communities/chap/records?q=&l=list&p=2&s=10&sort=newest)
-
+Data sources:
+1. [Netherlands Population density data](https://opendata.cbs.nl/statline/portal.html?_la=nl&_catalog=CBS&tableId=70072ned&_theme=246)
+2. [Netherlands region code](https://opendata.cbs.nl/statline/#/CBS/nl/dataset/84929NED/table?dl=343E)
+3. [Netherlands PM2.5 data](https://www.luchtmeetnet.nl/rapportages)
+4. [Netherlands proximity to facilites](https://opendata.cbs.nl/statline/#/CBS/en/dataset/85560ENG/table?ts=1754288993424)
 
 ## Interpreting the Raw data:
-Raw data from the source was provided in .nc format, we had to convert this file format into .csv, which is more readable and compatible with excel (for MU)
+Refer to [region map](/region_map.json) to translate the region codes to readable names
 
-### File paths
-- [2020 raw](/CHAP_PM2.5_Y1K_2021_V4.nc)
-- [2020 processed](/processed_CHAP_PM2.5_2021.csv)
+### File paths (processed data)
+1. [PM 2.5](\processed_pm2.5.csv)
+2. [Population density](\processed_pop_density.csv)
+3. [Processed proximity](\processed_proximity.csv)
+
+All datasets were processed into csv for ease of import into the regression model
