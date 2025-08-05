@@ -8,8 +8,7 @@ import pandas as pd
 
 # China file type is nc, NetCDF
 
-# pyright: ignore[reportUnknownParameterType, reportMissingTypeArgument]
-def openJson(filePath: str) -> dict:
+def openJson(filePath: str) -> dict:  # pyright: ignore[reportMissingTypeArgument, reportUnknownParameterType]
     """
     Open a JSON file and return its contents as a dictionary.
 
@@ -23,8 +22,7 @@ def openJson(filePath: str) -> dict:
         raise FileNotFoundError(f"File {filePath} does not exist.")
 
     with open(filePath, 'r', encoding='utf-8') as f:
-        # pyright: ignore[reportAny, reportMissingTypeArgument]
-        data: dict = json.load(f)
+        data: dict = json.load(f)   # pyright: ignore[reportAny, reportMissingTypeArgument]
 
     return data  # pyright: ignore[reportUnknownVariableType]
 
@@ -197,6 +195,28 @@ def trimProximity() -> bool:
     output.to_csv(outputFile, index=False)
     return True
 
+def translateRegionCode() -> None:
+    """
+    Translates region code from csv format to json format, maps NL codes to region name
+    """
+    NLPath: str = "datafiles/netherlands_region_code_translation2.csv"
+    outputPath: str = "datafiles/regionMap2.json"
+    file: dict[str, str] = openJson(outputPath)  # noqa: F841  # pyright: ignore[reportUnusedVariable, reportUnknownVariableType]
+
+    output: dict[str, str] = {}
+    with open(NLPath, 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            parted: list[str] = line.split(',')
+            if parted[1] == '\n':
+                output[parted[0]] = parted[0]
+    
+            else:
+                output[parted[0]] = parted[1].strip()
+    
+    json.dump(output, open(outputPath, 'w'), indent=4)
+    return None
+
 
 def trimRegionCode(filename: str) -> None:
     """
@@ -212,13 +232,12 @@ def trimRegionCode(filename: str) -> None:
 
     File output: datafiles/regionMap.json
     """
-    regionRaw: dict[str, dict[str, str]] = openJson(f"datafiles/{filename}.json")["value"]
+    regionRaw: dict[str, dict[str, str]] = openJson(f"datafiles/{filename}.json")["value"]  # pyright: ignore[reportUnknownVariableType]
     regionMap: dict[str, str] = {}
 
     for region in regionRaw:  # pyright: ignore[reportUnknownVariableType]
-        item: dict[str, str] = regionRaw[region]
-        # pyright: ignore[reportUnknownMemberType]
-        regionMap[item["Code_1"].strip()] = item["Naam_2"].strip()
+        item: dict[str, str] = regionRaw[region]  # pyright: ignore[reportUnknownVariableType]
+        regionMap[item["Code_1"].strip()] = item["Naam_2"].strip()  # pyright: ignore[reportUnknownMemberType]
 
     if not os.path.exists("datafiles/regionMap.json"):
         f = open("datafiles/regionMap.json", 'x')
@@ -237,7 +256,6 @@ def trimPM() -> bool:
     Returns True when done correctly
     """
     pmFile: str = "datafiles/pm2.5_2013-2023_netherlands.csv"
-
     outputFile: str = "datafiles/processed_pm2.5.csv"
 
     # Create the output file if it does not exist
@@ -245,33 +263,32 @@ def trimPM() -> bool:
         f = open(outputFile, 'x')
         f.close()
 
-    # Uncomment the next line once regionMap is available
-    # regionMap: dict[str, str] = openJson("datafiles/regionMap2.json")  # pyright: ignore[reportUnknownVariableType]
+    regionMap: dict[str, str] = openJson("datafiles/regionMap2.json")  # pyright: ignore[reportUnknownVariableType]
     with open(pmFile, 'r') as f:
         lines: list[str] = f.readlines()
+        lines = lines[:61]  ## Removes description at the bottom of the csv
 
         # Iterate through the lines and standardise empty values, and translate region codes
         for i in range(1, len(lines)):   # Skip the header row
             line: str = lines[i]
             code = line.split(",")[0]
             lines[i] = line.replace("-", "")
-            # lines[i] = line.replace(code, regionMap[code])  # Uncomment once regionMap is available
-        print(lines[:61])
+            lines[i] = line.replace(code, regionMap[code])  # Uncomment once regionMap is available
 
     print(''.join(lines), file=open(outputFile, 'w'))
     return True
 
 
-def getFiveNumberSummary(array: np.ndarray | pd.DataFrame) -> dict[str: int]:
+def getFiveNumberSummary(array: np.ndarray | pd.DataFrame) -> dict[str: int]:  # pyright: ignore[reportGeneralTypeIssues, reportInvalidTypeArguments, reportUnknownParameterType]
     assert array.shape[1] == 1 or len(array.shape) == 1
 
-    min = np.min(array)
-    max = np.max(array)
+    min = np.min(array)  # pyright: ignore[reportAny]
+    max = np.max(array)  # pyright: ignore[reportAny]
     median = np.median(array)
     q1 = np.quantile(array, 0.25)
     q3 = np.quantile(array, 0.75)
 
-    return min, q1, median, q3, max
+    return min, q1, median, q3, max  # pyright: ignore[reportReturnType]
 
 # Testing and Example Usage
 ## ===================================== ##
@@ -280,11 +297,13 @@ def getFiveNumberSummary(array: np.ndarray | pd.DataFrame) -> dict[str: int]:
 if __name__ == "__main__":
     # Example usage
     try:
+        # print(translateRegionCode())
         # trimRegionCode("reregionCode")
         # print(popDensity())
         print(trimPM())
         # print(trimProximity())
         pass
+
     except FileNotFoundError as e:
         print(e)
     except Exception as e:
