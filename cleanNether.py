@@ -258,7 +258,7 @@ def trimPM() -> bool:
             # lines[i] = line.replace(code, regionMap[code])  # Uncomment once regionMap is available
         print(lines[:61])
 
-    print(lines, file=open(outputFile, 'w'))
+    print(''.join(lines), file=open(outputFile, 'w'))
     return True
 
 
@@ -281,8 +281,8 @@ if __name__ == "__main__":
     # Example usage
     try:
         # trimRegionCode("reregionCode")
-        print(popDensity())
-        # print(trimPM())
+        # print(popDensity())
+        print(trimPM())
         # print(trimProximity())
         pass
     except FileNotFoundError as e:
