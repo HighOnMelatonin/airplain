@@ -1,7 +1,7 @@
 # About datafiles
 ## Constraints/Constants
 - Time period: 2013 - 2023; not all time periods have datasets
-- 
+- Some regions had multiple PM2.5 readings, so the average was taken
 
 ## Lists
 Data sources:
