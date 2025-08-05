@@ -200,7 +200,7 @@ def translateRegionCode() -> None:
     Translates region code from csv format to json format, maps NL codes to region name
     """
     NLPath: str = "datafiles/netherlands_region_code_translation2.csv"
-    outputPath: str = "datafiles/regionMap2.json"
+    outputPath: str = "datafiles/measurementStations.json"
     file: dict[str, str] = openJson(outputPath)  # noqa: F841  # pyright: ignore[reportUnusedVariable, reportUnknownVariableType]
 
     output: dict[str, str] = {}
@@ -263,7 +263,7 @@ def trimPM() -> bool:
         f = open(outputFile, 'x')
         f.close()
 
-    regionMap: dict[str, str] = openJson("datafiles/regionMap2.json")  # pyright: ignore[reportUnknownVariableType]
+    regionMap: dict[str, str] = openJson("datafiles/measurementStations.json")  # pyright: ignore[reportUnknownVariableType]
     with open(pmFile, 'r') as f:
         lines: list[str] = f.readlines()
         lines = lines[:61]  ## Removes description at the bottom of the csv
