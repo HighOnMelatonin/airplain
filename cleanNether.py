@@ -1,5 +1,5 @@
-# Python script to process China PM2.5 data
-# Run this script outside of datafiles directory
+## Python script to process/clean Netherlands data
+## Run this script outside of datafiles directory
 
 import os
 import json
@@ -35,7 +35,7 @@ def popDensity() -> bool:
 
     Output file: datafiles/processed_pop_density.csv
     """
-    regionCode: dict[str, dict[str, dict[str, str]]] = openJson("datafiles/regionMap.json")
+    regionCode: dict[str, str] = openJson("datafiles/regionMap.json")  # pyright: ignore[reportUnknownVariableType]
     jsonOutput: dict[str, dict[str, str]] = {}
     output: str = ''
     popDensityFile: str = "datafiles/Netherlands_population_density.csv"
@@ -58,20 +58,17 @@ def popDensity() -> bool:
             ## Error handling for region codes that don't have a corresponding region name
             try:
                 if regionCode[entry[1].strip()] not in jsonOutput.keys():
-                    # pyright: ignore[reportArgumentType]
-                    jsonOutput[regionCode[entry[1]].strip()] = {year: entry[3].strip()}
+                    jsonOutput[regionCode[entry[1]].strip()] = {year: entry[3].strip()}  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
                 else:
-                    # pyright: ignore[reportArgumentType]
-                    jsonOutput[regionCode[entry[1]].strip()][year] = entry[3].strip()
+                    jsonOutput[regionCode[entry[1]].strip()][year] = entry[3].strip()  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
 
-            except:
+            except KeyError:
                 if entry[1].strip() not in jsonOutput.keys():
                     jsonOutput[entry[1].strip()] = {year: entry[3].strip()}
 
                 else:
                     jsonOutput[entry[1].strip()][year] = entry[3].strip()
 
-            print(jsonOutput)
 
     region: str = list(jsonOutput.keys())[0]
     # Make a 3d array to contain all the data to be converted to csv
@@ -85,6 +82,7 @@ def popDensity() -> bool:
         array[0][column] = [year]
         column += 1
         # Fill the first row with the years
+    array[0][column] = ["\n"]
 
     row = 1
     for region in jsonOutput:
@@ -92,25 +90,42 @@ def popDensity() -> bool:
         row += 1
         # Fill the first column with the region codes
 
+
+
     # Fill the rest of the array with population density data
     row = 1
     while row < yDim:
         column = 1
         while column < xDim - 1:
-            regionCode = array[row][0][0]
+            regionCode: str = array[row][0][0]
             year = array[0][column][0]
-            population_density = jsonOutput[region][year]
-            array[row][column] = [population_density]
+            populationDensity = jsonOutput[regionCode][year]
+            array[row][column] = [populationDensity]
             column += 1
 
-        array[row][column] = ['\n']  # Add a newline at the end of each row
+        # regionCode: str = array[row][0][0]
+        # year = array[0][column][0]
+        # populationDensity = jsonOutput[region][year]
+        # array[row][column] = [populationDensity]  # Add a newline at the end of each row
         row += 1
 
-    print(array)
+    def mergeLine(array2D: list[list[str]]) -> str:
+        output = ''
+        for item in array2D:
+            if item == []:
+                item = ['']
+
+            output += item[0] + ','
+        
+        return output[:-2]
 
     # Uncomment the next lines when region code has been fixed
-    # output = str(array).replace("], [", "\n").replace("[", "").replace("]", "") # pyright: ignore[reportUnknownVariableType]
-    # print(output, file=csvOutPath, mode='w')  # pyright: ignore[reportUnknownVariableType]
+    for line in array:
+        output += mergeLine(line) + '\n'
+    
+    with open(csvOutPath, 'r+') as f:
+        print(output, file=f)  # pyright: ignore[reportUnknownVariableType]
+    
     return True
 
 
