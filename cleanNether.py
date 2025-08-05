@@ -35,16 +35,14 @@ def popDensity() -> bool:
 
     Output file: datafiles/processed_pop_density.csv
     """
-    regionCode: dict[str, dict[str, dict[str, str]]] = openJson(
-        # pyright: ignore[reportUnknownVariableType]
-        "datafiles/regionMap.json")
+    regionCode: dict[str, dict[str, dict[str, str]]] = openJson("datafiles/regionMap.json")
     jsonOutput: dict[str, dict[str, str]] = {}
     output: str = ''
     popDensityFile: str = "datafiles/Netherlands_population_density.csv"
 
     csvOutPath: str = "datafiles/processed_pop_density.csv"
     # If output csv file does not exist, create it
-    if not os.path.exists(path=csvOutPath):
+    if not os.path.exists(csvOutPath):
         f = open(csvOutPath, 'x')
         f.close()
 
@@ -55,15 +53,23 @@ def popDensity() -> bool:
             entry: list[str] = line.split(sep=",")
             year = entry[2][0:4]
 
-            # Build a dictionary with region codes as keys; another dictionary as value
-            # Nested dictionary will have years as keys and population density as values
-            if regionCode[entry[1]] not in jsonOutput.keys():
-                # pyright: ignore[reportArgumentType]
-                jsonOutput[regionCode[entry[1]]] = {year: entry[3].strip()}
+            ## Build a dictionary with region codes as keys; another dictionary as value
+            ## Nested dictionary will have years as keys and population density as values
+            ## Error handling for region codes that don't have a corresponding region name
+            try:
+                if regionCode[entry[1].strip()] not in jsonOutput.keys():
+                    # pyright: ignore[reportArgumentType]
+                    jsonOutput[regionCode[entry[1]].strip()] = {year: entry[3].strip()}
+                else:
+                    # pyright: ignore[reportArgumentType]
+                    jsonOutput[regionCode[entry[1]].strip()][year] = entry[3].strip()
 
-            else:
-                # pyright: ignore[reportArgumentType]
-                jsonOutput[regionCode[entry[1]]][year] = entry[3].strip()
+            except:
+                if entry[1].strip() not in jsonOutput.keys():
+                    jsonOutput[entry[1].strip()] = {year: entry[3].strip()}
+
+                else:
+                    jsonOutput[entry[1].strip()][year] = entry[3].strip()
 
             print(jsonOutput)
 
@@ -72,8 +78,7 @@ def popDensity() -> bool:
     # +1 for the header row +1 for newline
     xDim: int = len(jsonOutput[region]) + 2
     yDim: int = len(jsonOutput) + 1  # +1 for the header column
-    array: list[list[list[str]]] = [[[]
-                                     for j in range(xDim)] for i in range(yDim)]
+    array: list[list[list[str]]] = [[[]for j in range(xDim)] for i in range(yDim)]
 
     column = 1
     for year in jsonOutput[region]:
@@ -167,8 +172,7 @@ def trimProximity() -> bool:
         # Change the cumulative data to ranges
         in10: float = round(proximityValueDict['10'][3], 1)
         in20: float = round(proximityValueDict['20'][3] - max(in10, 0), 1)
-        in50: float = round(
-            proximityValueDict['50'][3] - max(in20, 0) - max(in10, 0), 1)
+        in50: float = round(proximityValueDict['50'][3] - max(in20, 0) - max(in10, 0), 1)
 
         # Convert the data to percentage of total
         total: float = max(in10 + in20 + in50, 1)
@@ -197,13 +201,10 @@ def trimRegionCode(filename: str) -> None:
 
     File output: datafiles/regionMap.json
     """
-    regionRaw: dict[str, dict[str, str]] = openJson(
-        # pyright: ignore[reportUnknownVariableType]
-        f"datafiles/{filename}.json")["value"]
+    regionRaw: dict[str, dict[str, str]] = openJson(f"datafiles/{filename}.json")["value"]
     regionMap: dict[str, str] = {}
 
     for region in regionRaw:  # pyright: ignore[reportUnknownVariableType]
-        # pyright: ignore[reportUnknownVariableType]
         item: dict[str, str] = regionRaw[region]
         # pyright: ignore[reportUnknownMemberType]
         regionMap[item["Code_1"].strip()] = item["Naam_2"].strip()
@@ -269,7 +270,7 @@ if __name__ == "__main__":
     # Example usage
     try:
         # trimRegionCode("reregionCode")
-        # print(popDensity())
+        print(popDensity())
         # print(trimPM())
         # print(trimProximity())
         pass
