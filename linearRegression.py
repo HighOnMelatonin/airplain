@@ -1,6 +1,7 @@
 from typing import Optional, Any
 import numpy as np
 import pandas as pd
+import cleanNether as cn
 
 def get_features_targets(df: pd.DataFrame, 
                          feature_names: list[str], 
@@ -327,3 +328,79 @@ def mean_squared_error(target: np.ndarray, pred: np.ndarray) -> float:
     total: np.ndarray = np.sum(y_diff.T @ y_diff)
     n: int = target.shape[0]
     return float(total / n)
+
+
+
+
+if __name__ == '__main__':
+    print(cn.translateRegionCode())
+    cn.trimRegionCode("reregionCode")
+    print(cn.popDensity())
+    print(cn.trimPM())
+    print(cn.trimProximity())
+    #Grab the cleaned data
+    popDensityDF: pd.DataFrame = pd.read_csv('datafiles\processed_pop_density.csv',index_col=0).fillna(-1)
+    pmDF: pd.DataFrame = pd.read_csv('datafiles\processed_pm2.5.csv',index_col=0).fillna(-1)
+    proximityDF: pd.DataFrame = pd.read_csv('datafiles\processed_proximity.csv')
+    print('-'*150)
+    print(popDensityDF)
+    print(pmDF)
+    print(proximityDF)
+
+    print('-'*150)
+    #Merge the cleaned data into 1 dataframe
+    newColumns: pd.DataFrame = pd.DataFrame(columns=['Population Density','PM2.5'])
+    for index, row in proximityDF.iterrows():
+        region: str = row['Region']
+        year: str = str(row['Year'])
+        try:
+            popDensity: float = popDensityDF.loc[region,year]
+        except:
+            popDensity: float = -1.0
+        try:
+            pm25: float = pmDF.loc[region,year]
+        except:
+            pm25: float = -1.0
+        newColumns.loc[index] = [popDensity, pm25]
+    mergedDF: pd.DataFrame = pd.concat([proximityDF,newColumns],axis=1)
+    print(mergedDF)
+
+    print('-'*150)
+    #Remove incomplete rows from the data to get the final compiled dataset
+    incompleteRows: list = []
+    for index, row in mergedDF.iterrows():
+        complete: bool = True
+        for key, value in row.items():
+            ### Exclude 'PM2.5' from the incomplete check, for testing purposes. Remove for submission.
+            if key == 'PM2.5':
+                continue
+            if value == -1.0:
+                complete: bool = False
+                break
+        if not complete:
+            incompleteRows.append(index)
+    data: pd.DataFrame = mergedDF.drop(incompleteRows, axis=0).reset_index()
+    print('-'*150)
+    print(data)
+    ### Linear regression, don't run until dataset is fixed
+    # features = ['0 to 10 km', '>10 to 20 km', '>20 to 50km', 'Population Density']
+    # target = ['PM2.5']
+    # data_features, data_target = get_features_targets(data, features, target) 
+    # data_features_train, data_features_test, data_target_train, data_target_test = split_data(data_features, data_target, random_state=100, test_size=0.3)
+    # model, J_storage = build_model_linreg(data_features_train, data_target_train)
+    # pred: np.ndarray = predict_linreg(data_features_test.to_numpy(), model['beta'], model['means'], model['stds'])
+
+    # import matplotlib.pyplot as plt
+    # import matplotlib.axes as axes
+
+    # print('-'*150)
+    # print(f'{model["beta"]=}')
+    # print(f'{model["means"]=}')
+    # print(f'{model["stds"]=}')
+
+
+    # for feature in features:
+    #     plt.scatter(data_features_test[feature], data_target_test)
+    #     plt.scatter(data_features_test[feature], pred)
+
+
