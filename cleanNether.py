@@ -103,10 +103,6 @@ def popDensity() -> bool:
             array[row][column] = [populationDensity]
             column += 1
 
-        # regionCode: str = array[row][0][0]
-        # year = array[0][column][0]
-        # populationDensity = jsonOutput[region][year]
-        # array[row][column] = [populationDensity]  # Add a newline at the end of each row
         row += 1
 
     def mergeLine(array2D: list[list[str]]) -> str:
