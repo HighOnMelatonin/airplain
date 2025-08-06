@@ -41,9 +41,9 @@ def landUse() -> bool:
     ## Dictionary structure: {region: {year: {roads: value, parks: value}}}
     jsonOutput: dict[str, dict[str, dict[str, str]]] = {}
     output: str = ''
-    landUseFile: str = "pv_datafiles/provincial_land_use_main_road_public_park_garden.csv"
+    landUseFile: str = "datafiles/provincial_land_use_main_road_public_park_garden.csv"
 
-    csvOutPath: str = "pv_datafiles/processedLandUse.csv"
+    csvOutPath: str = "datafiles/processedLandUse.csv"
     ## If output csv file does not exist, create it
     if not os.path.exists(csvOutPath):
         f = open(csvOutPath, 'x')
@@ -149,9 +149,9 @@ def popDensity() -> bool:
     ## Dictionary structure: {region: {year: data}}
     jsonOutput: dict[str, dict[str, str]] = {}
     output: str = ''
-    popDensityFile: str = "pv_datafiles/provincial_population_density.csv"
+    popDensityFile: str = "datafiles/provincial_population_density.csv"
 
-    csvOutPath: str = "pv_datafiles/processedPopDensity.csv"
+    csvOutPath: str = "datafiles/processedPopDensity.csv"
     ## If output csv file does not exist, create it
     if not os.path.exists(csvOutPath):
         f = open(csvOutPath, 'x')
@@ -253,12 +253,12 @@ def trimProximity() -> bool:
 
     -1 indicates null data
     """
-    proximityPath: str = "pv_datafiles/provincial_proximity.json"
+    proximityPath: str = "datafiles/provincial_proximity.json"
     proximityDict: dict[str, dict[str, str]] = openJson(
         proximityPath)["value"]  # pyright: ignore[reportUnknownVariableType]
     regionMap: dict[str, str] = openJson("datafiles/regionMap.json")
     provinceCode: dict[str, dict[str, list[str]]] = openJson("datafiles/provinceMap.json")
-    outputFile: str = "pv_datafiles/processedProximity.csv"
+    outputFile: str = "datafiles/processedProximity.csv"
     if not os.path.exists(outputFile):
         f = open(outputFile, 'x')
         f.close()
