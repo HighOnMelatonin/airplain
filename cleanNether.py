@@ -145,6 +145,8 @@ def popDensity() -> bool:
     Output file: datafiles/processedPopDensity.csv
     """
     regionCode: dict[str, str] = openJson("datafiles/regionMap.json")  # pyright: ignore[reportUnknownVariableType, reportAssignmentType, reportRedeclaration]
+    provinceCode: dict[str, dict[str, list[str]]] = openJson("datafiles/provinceMap.json")  # pyright: ignore[reportUnknownVariableType]
+    ## Dictionary structure: {region: {year: data}}
     jsonOutput: dict[str, dict[str, str]] = {}
     output: str = ''
     popDensityFile: str = "datafiles/NetherlandsPopulationDensity.csv"
@@ -165,37 +167,43 @@ def popDensity() -> bool:
             ## Build a dictionary with region codes as keys; another dictionary as value
             ## Nested dictionary will have years as keys and population density as values
             ## Error handling for region codes that don't have a corresponding region name
-            try:
-                if regionCode[entry[1].strip()] not in jsonOutput.keys():
-                    jsonOutput[regionCode[entry[1]].strip()] = {year: entry[3].strip()}  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
-                else:
-                    jsonOutput[regionCode[entry[1]].strip()][year] = entry[3].strip()  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
+            pvName = ''
+            if entry[1] in regionCode.keys():
+                region: str = regionCode[entry[1].strip()]
+                for pvCode in provinceCode:
+                    if region in provinceCode[pvCode]["municipalities"]:
+                        pvName: str = provinceCode[pvCode]["name"]  # pyright: ignore[reportAssignmentType]
+                        break
 
-            except KeyError:
-                if entry[1].strip() not in jsonOutput.keys():
-                    jsonOutput[entry[1].strip()] = {year: entry[3].strip()}
+            if pvName == '':
+                pvName: str = entry[1].strip()
 
-                else:
-                    jsonOutput[entry[1].strip()][year] = entry[3].strip()
+            if "\u2011" in pvName:
+                pvName: str = pvName.replace("\u2011", '-')
+            
+            if pvName in jsonOutput.keys():
+                jsonOutput[pvName][year] = entry[3].strip()
 
+            else:
+                jsonOutput[pvName] = {year: entry[3].strip()}
 
-    region: str = list(jsonOutput.keys())[0]
+    pvName: str = list(jsonOutput.keys())[0]
     ## Make a 3d array to contain all the data to be converted to csv
     ## +1 for the header row
-    xDim: int = len(jsonOutput[region]) + 2
+    xDim: int = len(jsonOutput[pvName]) + 2
     yDim: int = len(jsonOutput) + 1  # +1 for the header column
     array: list[list[list[str]]] = [[[]for j in range(xDim)] for i in range(yDim)]
     
     column = 1
-    for year in jsonOutput[region]:
+    for year in jsonOutput[pvName]:
         array[0][column] = [year]
         column += 1
         # Fill the first row with the years
     array[0][column] = ["\n"]
 
     row = 1
-    for region in jsonOutput:
-        array[row][0] = [region]
+    for pvName in jsonOutput:
+        array[row][0] = [pvName]
         row += 1
         # Fill the first column with the region codes
 
@@ -206,9 +214,9 @@ def popDensity() -> bool:
     while row < yDim:
         column = 1
         while column < xDim - 1:
-            regionCode: str = array[row][0][0]
+            pvCode: str = array[row][0][0]
             year = array[0][column][0]
-            populationDensity = jsonOutput[regionCode][year]
+            populationDensity = jsonOutput[pvCode][year]
             array[row][column] = [populationDensity]
             column += 1
 
@@ -249,6 +257,7 @@ def trimProximity() -> bool:
     proximityDict: dict[str, dict[str, str]] = openJson(
         proximityPath)["value"]  # pyright: ignore[reportUnknownVariableType]
     regionMap: dict[str, str] = openJson("datafiles/regionMap.json")
+    provinceCode: dict[str, dict[str, list[str]]] = openJson("datafiles/provinceMap.json")
     outputFile: str = "datafiles/processedProximity.csv"
     if not os.path.exists(outputFile):
         f = open(outputFile, 'x')
@@ -262,6 +271,20 @@ def trimProximity() -> bool:
     for row in proximityDict.values():
         region: str = row["Regions"]
         region: str = regionMap.get(region, region)
+
+        pvName = ''     ## Province name
+        for pvCode in provinceCode:
+            if region in provinceCode[pvCode]["municipalities"]:
+                pvName: str = provinceCode[pvCode]["name"]
+                break
+        
+        ## If region does not have an associated name
+        if pvName == '':
+            pvName: str = region
+
+        if "\u2011" in pvName:
+            pvName: str = pvName.replace("\u2011", '-')
+
         year: str = row["Periods"][0:4]
         proximityValueDict: dict[str: list[int]] = {
             '10': [], '20': [], '50': []}
@@ -303,7 +326,7 @@ def trimProximity() -> bool:
         in20 /= total
         in50 /= total
 
-        output.loc[len(output)] = [region, year, in10, in20, in50]
+        output.loc[len(output)] = [pvName, year, in10, in20, in50]
 
     output = removeProblemCharacters(output)
 
@@ -408,7 +431,69 @@ def carTravel() -> bool:
     carTravelDict: dict[str, str] = openJson(carTravelFile)
     regionMap: dict[str, str] = openJson("datafiles/regionMap.json")
 
+    carTravelFile: str = "datafiles/transportTravelByProvince.json"
+    outputPublicFile: str = "datafiles/processedCarTravelPublic.csv"
+    outputPrivateFile: str = "datafiles/processedCarTravelPrivate.csv"
+    with open(carTravelFile, 'r', encoding='utf-8-sig') as f:
+        carTravelDict: dict = json.load(f)['value']
+    provinceMap: dict[str, str] = openJson("datafiles/provinceMap.json")
+
+    travelModeDict: dict[str, str] = {"A048583": 'Private', "A048584": "Private", "A018981": "Public", "A018982": "Public", "A018984": None, "A018985": None, "A018986": None }
     
+    outputDict: dict[str: dict[str: float]] = {}
+    outputPrivate: pd.DataFrame = pd.DataFrame(columns=['Region','Year','Private Transport in km'])
+    outputPublic: pd.DataFrame = pd.DataFrame(columns=['Region','Year','Public Transport in km'])
+    for _, data in carTravelDict.items():
+        travelMode: str = data["TravelModes"]
+        travelMode: str | None = travelModeDict[travelMode]
+        if travelMode is None:
+            continue
+        region: str = data["RegionCharacteristics"].strip()
+        year: str = data["Periods"][0:4]
+
+        dist1: str = data["Trips_1"]
+        dist2: str = data["Trips_4"]
+        try:
+            dist1 = float(dist1)
+            dist2 = float(dist2)
+            distTravelled: float = (dist1 + dist2) / 2
+        except:
+            distTravelled = -1.0
+        regionyear: str = region + "@" + year
+        if regionyear not in outputDict:
+            outputDict[regionyear] = {}
+        try:
+            outputDict[regionyear][travelMode] += distTravelled
+            if distTravelled == -1:
+                outputDict[regionyear][travelMode] += 1
+                continue
+        except:
+            outputDict[regionyear][travelMode] = distTravelled
+
+    for regionyear, travelData in outputDict.items():
+        region, year = regionyear.split("@")
+        try:
+            region: str = provinceMap[region]['name']
+        except:
+            continue
+        travelPublic: float = travelData.get("Public","")
+        travelPrivate: float = travelData.get("Private","")
+        
+        if travelPublic:
+            outputPublic.loc[len(outputPublic)] = [region, year, travelPublic] 
+        if travelPrivate:
+            outputPrivate.loc[len(outputPrivate)] = [region, year, travelPrivate]
+        
+    outputPublic = outputPublic.map(removeProblemCharacters)
+    outputPrivate = outputPrivate.map(removeProblemCharacters)
+
+    print(f'{outputPublic=}')
+    print(f'{outputPrivate=}')
+            
+    outputPublic.to_csv(outputPublicFile, index=False)
+    outputPrivate.to_csv(outputPrivateFile, index=False)
+
+    return True
 
 
 
@@ -436,16 +521,9 @@ def removeProblemCharacters(string: str) -> str:
 
 if __name__ == "__main__":
     # Example usage
-    try:
-        print(translateRegionCode())
-        trimRegionCode("reregionCode")
-        print(popDensity())
-        print(trimPM())
-        print(trimProximity())
-        print(landUse())
-        pass
-
-    except FileNotFoundError as e:
-        print(e)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    print(translateRegionCode())
+    trimRegionCode("reregionCode")
+    print(popDensity())
+    print(trimPM())
+    print(trimProximity())
+    print(landUse())
