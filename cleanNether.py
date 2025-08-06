@@ -257,6 +257,7 @@ def trimProximity() -> bool:
     proximityDict: dict[str, dict[str, str]] = openJson(
         proximityPath)["value"]  # pyright: ignore[reportUnknownVariableType]
     regionMap: dict[str, str] = openJson("datafiles/regionMap.json")
+    provinceCode: dict[str, dict[str, list[str]]] = openJson("datafiles/provinceMap.json")
     outputFile: str = "datafiles/processedProximity.csv"
     if not os.path.exists(outputFile):
         f = open(outputFile, 'x')
@@ -270,6 +271,20 @@ def trimProximity() -> bool:
     for row in proximityDict.values():
         region: str = row["Regions"]
         region: str = regionMap.get(region, region)
+
+        pvName = ''     ## Province name
+        for pvCode in provinceCode:
+            if region in provinceCode[pvCode]["municipalities"]:
+                pvName: str = provinceCode[pvCode]["name"]
+                break
+        
+        ## If region does not have an associated name
+        if pvName == '':
+            pvName: str = region
+
+        if "\u2011" in pvName:
+            pvName: str = pvName.replace("\u2011", '-')
+
         year: str = row["Periods"][0:4]
         proximityValueDict: dict[str: list[int]] = {
             '10': [], '20': [], '50': []}
@@ -311,7 +326,7 @@ def trimProximity() -> bool:
         in20 /= total
         in50 /= total
 
-        output.loc[len(output)] = [region, year, in10, in20, in50]
+        output.loc[len(output)] = [pvName, year, in10, in20, in50]
 
     output = removeProblemCharacters(output)
 
@@ -416,7 +431,69 @@ def carTravel() -> bool:
     carTravelDict: dict[str, str] = openJson(carTravelFile)
     regionMap: dict[str, str] = openJson("datafiles/regionMap.json")
 
+    carTravelFile: str = "datafiles/transportTravelByProvince.json"
+    outputPublicFile: str = "datafiles/processedCarTravelPublic.csv"
+    outputPrivateFile: str = "datafiles/processedCarTravelPrivate.csv"
+    with open(carTravelFile, 'r', encoding='utf-8-sig') as f:
+        carTravelDict: dict = json.load(f)['value']
+    provinceMap: dict[str, str] = openJson("datafiles/provinceMap.json")
+
+    travelModeDict: dict[str, str] = {"A048583": 'Private', "A048584": "Private", "A018981": "Public", "A018982": "Public", "A018984": None, "A018985": None, "A018986": None }
     
+    outputDict: dict[str: dict[str: float]] = {}
+    outputPrivate: pd.DataFrame = pd.DataFrame(columns=['Region','Year','Private Transport in km'])
+    outputPublic: pd.DataFrame = pd.DataFrame(columns=['Region','Year','Public Transport in km'])
+    for _, data in carTravelDict.items():
+        travelMode: str = data["TravelModes"]
+        travelMode: str | None = travelModeDict[travelMode]
+        if travelMode is None:
+            continue
+        region: str = data["RegionCharacteristics"].strip()
+        year: str = data["Periods"][0:4]
+
+        dist1: str = data["Trips_1"]
+        dist2: str = data["Trips_4"]
+        try:
+            dist1 = float(dist1)
+            dist2 = float(dist2)
+            distTravelled: float = (dist1 + dist2) / 2
+        except:
+            distTravelled = -1.0
+        regionyear: str = region + "@" + year
+        if regionyear not in outputDict:
+            outputDict[regionyear] = {}
+        try:
+            outputDict[regionyear][travelMode] += distTravelled
+            if distTravelled == -1:
+                outputDict[regionyear][travelMode] += 1
+                continue
+        except:
+            outputDict[regionyear][travelMode] = distTravelled
+
+    for regionyear, travelData in outputDict.items():
+        region, year = regionyear.split("@")
+        try:
+            region: str = provinceMap[region]['name']
+        except:
+            continue
+        travelPublic: float = travelData.get("Public","")
+        travelPrivate: float = travelData.get("Private","")
+        
+        if travelPublic:
+            outputPublic.loc[len(outputPublic)] = [region, year, travelPublic] 
+        if travelPrivate:
+            outputPrivate.loc[len(outputPrivate)] = [region, year, travelPrivate]
+        
+    outputPublic = outputPublic.map(removeProblemCharacters)
+    outputPrivate = outputPrivate.map(removeProblemCharacters)
+
+    print(f'{outputPublic=}')
+    print(f'{outputPrivate=}')
+            
+    outputPublic.to_csv(outputPublicFile, index=False)
+    outputPrivate.to_csv(outputPrivateFile, index=False)
+
+    return True
 
 
 
