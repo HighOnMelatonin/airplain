@@ -145,6 +145,8 @@ def popDensity() -> bool:
     Output file: datafiles/processedPopDensity.csv
     """
     regionCode: dict[str, str] = openJson("datafiles/regionMap.json")  # pyright: ignore[reportUnknownVariableType, reportAssignmentType, reportRedeclaration]
+    provinceCode: dict[str, dict[str, list[str]]] = openJson("datafiles/provinceMap.json")  # pyright: ignore[reportUnknownVariableType]
+    ## Dictionary structure: {region: {year: data}}
     jsonOutput: dict[str, dict[str, str]] = {}
     output: str = ''
     popDensityFile: str = "datafiles/NetherlandsPopulationDensity.csv"
@@ -165,37 +167,43 @@ def popDensity() -> bool:
             ## Build a dictionary with region codes as keys; another dictionary as value
             ## Nested dictionary will have years as keys and population density as values
             ## Error handling for region codes that don't have a corresponding region name
-            try:
-                if regionCode[entry[1].strip()] not in jsonOutput.keys():
-                    jsonOutput[regionCode[entry[1]].strip()] = {year: entry[3].strip()}  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
-                else:
-                    jsonOutput[regionCode[entry[1]].strip()][year] = entry[3].strip()  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
+            pvName = ''
+            if entry[1] in regionCode.keys():
+                region: str = regionCode[entry[1].strip()]
+                for pvCode in provinceCode:
+                    if region in provinceCode[pvCode]["municipalities"]:
+                        pvName: str = provinceCode[pvCode]["name"]  # pyright: ignore[reportAssignmentType]
+                        break
 
-            except KeyError:
-                if entry[1].strip() not in jsonOutput.keys():
-                    jsonOutput[entry[1].strip()] = {year: entry[3].strip()}
+            if pvName == '':
+                pvName: str = entry[1].strip()
 
-                else:
-                    jsonOutput[entry[1].strip()][year] = entry[3].strip()
+            if "\u2011" in pvName:
+                pvName: str = pvName.replace("\u2011", '-')
+            
+            if pvName in jsonOutput.keys():
+                jsonOutput[pvName][year] = entry[3].strip()
 
+            else:
+                jsonOutput[pvName] = {year: entry[3].strip()}
 
-    region: str = list(jsonOutput.keys())[0]
+    pvName: str = list(jsonOutput.keys())[0]
     ## Make a 3d array to contain all the data to be converted to csv
     ## +1 for the header row
-    xDim: int = len(jsonOutput[region]) + 2
+    xDim: int = len(jsonOutput[pvName]) + 2
     yDim: int = len(jsonOutput) + 1  # +1 for the header column
     array: list[list[list[str]]] = [[[]for j in range(xDim)] for i in range(yDim)]
     
     column = 1
-    for year in jsonOutput[region]:
+    for year in jsonOutput[pvName]:
         array[0][column] = [year]
         column += 1
         # Fill the first row with the years
     array[0][column] = ["\n"]
 
     row = 1
-    for region in jsonOutput:
-        array[row][0] = [region]
+    for pvName in jsonOutput:
+        array[row][0] = [pvName]
         row += 1
         # Fill the first column with the region codes
 
@@ -206,9 +214,9 @@ def popDensity() -> bool:
     while row < yDim:
         column = 1
         while column < xDim - 1:
-            regionCode: str = array[row][0][0]
+            pvCode: str = array[row][0][0]
             year = array[0][column][0]
-            populationDensity = jsonOutput[regionCode][year]
+            populationDensity = jsonOutput[pvCode][year]
             array[row][column] = [populationDensity]
             column += 1
 
@@ -436,16 +444,9 @@ def removeProblemCharacters(string: str) -> str:
 
 if __name__ == "__main__":
     # Example usage
-    try:
-        print(translateRegionCode())
-        trimRegionCode("reregionCode")
-        print(popDensity())
-        print(trimPM())
-        print(trimProximity())
-        print(landUse())
-        pass
-
-    except FileNotFoundError as e:
-        print(e)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    print(translateRegionCode())
+    trimRegionCode("reregionCode")
+    print(popDensity())
+    print(trimPM())
+    print(trimProximity())
+    print(landUse())
