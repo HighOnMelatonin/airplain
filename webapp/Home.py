@@ -11,8 +11,6 @@ We are a team from SUTD developing carGo as part of our Design Thinking Project 
 carGo is a linear regression model written in Python to predict urban private car reliance.  
 ## Parameters:
 * Population Density (people/km²)
-* Land Use for Main Roads (in hectares)
-* Land Use for Parks and Public Gardens (hectares)
 * Normalized Proximity to Facilities 
     * From 0 to 10
     * From 10 to 20
