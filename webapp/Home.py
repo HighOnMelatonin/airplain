@@ -13,9 +13,10 @@ Parameters:
 * Population Density (people/km²)
 * Land Use for Main Roads (in hectares)
 * Land Use for Parks and Public Gardens (hectares)
-* Normalized Proximity to Facilities from 0 to 10
-* Normalized Proximity to Facilities from 10 to 20
-* Normalized Proximity to Facilities from 20 to 50   
+* Normalized Proximity to Facilities 
+    * From 0 to 10
+    * From 10 to 20
+    * From 20 to 50   
     * The sum of these 3 normalized parameters must be 1
 * Average Distance Travelled Per Trip for Public Transport (in kilometres)
     * Includes Trains, Trams, Metros, Buses
