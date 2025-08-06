@@ -5,19 +5,21 @@ st.set_page_config(
 )
 
 st.markdown("""
-# Welcome to **Airplain**
+# Welcome to **carGo**
 
-We are a team from SUTD developing Airplain as part of our Design Thinking Project module.  
-Airplain is a linear regression model written in python to predict the rates of air pollution in a city.  
+We are a team from SUTD developing carGo as part of our Design Thinking Project module.  
+carGo is a linear regression model written in Python to predict the rates of private car usage in a city.  
 Parameters:
-* Population density (people/km2)
-* Land use for main roads (in hectares)
-* Land use for parks and public gardens (hectares)
-* Normalized proximity to facilities from 0 to 10
-* Normalized proximity to facilities from 10 to 20
-* Normalized proximity to facilities from 20 to 50   
+* Population Density (people/km²)
+* Land Use for Main Roads (in hectares)
+* Land Use for Parks and Public Gardens (hectares)
+* Normalized Proximity to Facilities from 0 to 10
+* Normalized Proximity to Facilities from 10 to 20
+* Normalized Proximity to Facilities from 20 to 50   
     * The sum of these 3 normalized parameters must be 1
-            
+* Average Distance Travelled Per Trip for Public Transport (in kilometres)
+    * Includes Trains, Trams, Metros, Buses
+    
 [Our Github Repo](https://github.com/HighOnMelatonin/airplain)
 """)
 
