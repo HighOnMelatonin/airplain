@@ -41,9 +41,9 @@ def landUse() -> bool:
     ## Dictionary structure: {region: {year: {roads: value, parks: value}}}
     jsonOutput: dict[str, dict[str, dict[str, str]]] = {}
     output: str = ''
-    landUseFile: str = "datafiles/NetherlandsLandUseMainRoadParkAndPublicGarden.csv"
+    landUseFile: str = "pv_datafiles/provincial_land_use_main_road_public_park_garden.csv"
 
-    csvOutPath: str = "datafiles/processedLandUse.csv"
+    csvOutPath: str = "pv_datafiles/processedLandUse.csv"
     ## If output csv file does not exist, create it
     if not os.path.exists(csvOutPath):
         f = open(csvOutPath, 'x')
@@ -59,24 +59,24 @@ def landUse() -> bool:
         pvName = ''
         if entry[1] in regionCode.keys():  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
             region = regionCode[entry[1].strip()]  # pyright: ignore[reportArgumentType]
-            ## Map region name to province name
-            for pvCode in provinceCode:
-                if region in provinceCode[pvCode]["municipalities"]:
-                    pvName: str = provinceCode[pvCode]["name"]  # pyright: ignore[reportAssignmentType]
-                    break
+            # ## Map region name to province name
+            # for pvCode in provinceCode:
+            #     if region in provinceCode[pvCode]["municipalities"]:
+            #         pvName: str = provinceCode[pvCode]["name"]  # pyright: ignore[reportAssignmentType]
+            #         break
         
         ## If regionCode has no name, or pvCode does not have a pvName, set pvName to the regionCode
-        if pvName == '':
-            pvName: str = entry[1].strip()
+        if region == '':
+            region: str = entry[1].strip()
 
-        if "\u2011" in pvName:
-            pvName = pvName.replace("\u2011", '-')
+        if "\u2011" in region:
+            region = region.replace("\u2011", '-')
 
-        if pvName in jsonOutput.keys():
-            jsonOutput[pvName][year] = {"roads": entry[3].strip(), "parks": entry[4].strip()}
+        if region in jsonOutput.keys():
+            jsonOutput[region][year] = {"roads": entry[3].strip(), "parks": entry[4].strip()}
 
         else:
-            jsonOutput[pvName] = {year: {"roads": entry[3].strip(), "parks": entry[4].strip()}}
+            jsonOutput[region] = {year: {"roads": entry[3].strip(), "parks": entry[4].strip()}}
 
 
     ## Make a 3d array to conain all the data to be converted to csv
@@ -149,9 +149,9 @@ def popDensity() -> bool:
     ## Dictionary structure: {region: {year: data}}
     jsonOutput: dict[str, dict[str, str]] = {}
     output: str = ''
-    popDensityFile: str = "datafiles/NetherlandsPopulationDensity.csv"
+    popDensityFile: str = "pv_datafiles/provincial_population_density.csv"
 
-    csvOutPath: str = "datafiles/processedPopDensity.csv"
+    csvOutPath: str = "pv_datafiles/processedPopDensity.csv"
     ## If output csv file does not exist, create it
     if not os.path.exists(csvOutPath):
         f = open(csvOutPath, 'x')
@@ -167,25 +167,25 @@ def popDensity() -> bool:
             ## Build a dictionary with region codes as keys; another dictionary as value
             ## Nested dictionary will have years as keys and population density as values
             ## Error handling for region codes that don't have a corresponding region name
-            pvName = ''
+            region = ''
             if entry[1] in regionCode.keys():
                 region: str = regionCode[entry[1].strip()]
-                for pvCode in provinceCode:
-                    if region in provinceCode[pvCode]["municipalities"]:
-                        pvName: str = provinceCode[pvCode]["name"]  # pyright: ignore[reportAssignmentType]
-                        break
+                # for pvCode in provinceCode:
+                #     if region in provinceCode[pvCode]["municipalities"]:
+                #         pvName: str = provinceCode[pvCode]["name"]  # pyright: ignore[reportAssignmentType]
+                #         break
 
-            if pvName == '':
-                pvName: str = entry[1].strip()
+            if region == '':
+                region: str = entry[1].strip()
 
-            if "\u2011" in pvName:
-                pvName: str = pvName.replace("\u2011", '-')
+            if "\u2011" in region:
+                region: str = region.replace("\u2011", '-')
             
-            if pvName in jsonOutput.keys():
-                jsonOutput[pvName][year] = entry[3].strip()
+            if region in jsonOutput.keys():
+                jsonOutput[region][year] = entry[3].strip()
 
             else:
-                jsonOutput[pvName] = {year: entry[3].strip()}
+                jsonOutput[region] = {year: entry[3].strip()}
 
     pvName: str = list(jsonOutput.keys())[0]
     ## Make a 3d array to contain all the data to be converted to csv
@@ -253,12 +253,12 @@ def trimProximity() -> bool:
 
     -1 indicates null data
     """
-    proximityPath: str = "datafiles/proximityToJob.json"
+    proximityPath: str = "pv_datafiles/provincial_proximity.json"
     proximityDict: dict[str, dict[str, str]] = openJson(
         proximityPath)["value"]  # pyright: ignore[reportUnknownVariableType]
     regionMap: dict[str, str] = openJson("datafiles/regionMap.json")
     provinceCode: dict[str, dict[str, list[str]]] = openJson("datafiles/provinceMap.json")
-    outputFile: str = "datafiles/processedProximity.csv"
+    outputFile: str = "pv_datafiles/processedProximity.csv"
     if not os.path.exists(outputFile):
         f = open(outputFile, 'x')
         f.close()
@@ -270,20 +270,20 @@ def trimProximity() -> bool:
     # Iterate through all the region & periods
     for row in proximityDict.values():
         region: str = row["Regions"]
-        region: str = regionMap.get(region, region)
+        # region: str = provinceCode.get(region, region)
 
-        pvName = ''     ## Province name
-        for pvCode in provinceCode:
-            if region in provinceCode[pvCode]["municipalities"]:
-                pvName: str = provinceCode[pvCode]["name"]
-                break
+        # pvName = ''     ## Province name
+        # for pvCode in provinceCode:
+        #     if region in provinceCode[pvCode]["municipalities"]:
+        #         pvName: str = provinceCode[pvCode]["name"]
+        #         break
         
         ## If region does not have an associated name
-        if pvName == '':
-            pvName: str = region
+        # if region == '':
+        #     region: str = region
 
-        if "\u2011" in pvName:
-            pvName: str = pvName.replace("\u2011", '-')
+        if "\u2011" in region:
+            region: str = region.replace("\u2011", '-')
 
         year: str = row["Periods"][0:4]
         proximityValueDict: dict[str: list[int]] = {
@@ -326,7 +326,7 @@ def trimProximity() -> bool:
         in20 /= total
         in50 /= total
 
-        output.loc[len(output)] = [pvName, year, in10, in20, in50]
+        output.loc[len(output)] = [region.strip(), year, in10, in20, in50]
 
     output = removeProblemCharacters(output)
 
