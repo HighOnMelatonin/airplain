@@ -8,8 +8,8 @@ st.markdown("""
 # Welcome to **carGo**
 
 We are a team from SUTD developing carGo as part of our Design Thinking Project module.  
-carGo is a linear regression model written in Python to predict private car reliance in a city.  
-Parameters:
+carGo is a linear regression model written in Python to predict urban private car reliance.  
+## Parameters:
 * Population Density (people/km²)
 * Land Use for Main Roads (in hectares)
 * Land Use for Parks and Public Gardens (hectares)
