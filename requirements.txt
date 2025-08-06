@@ -30,7 +30,7 @@ matplotlib==3.10.3
     #   seaborn
 netcdf4==1.7.2
     # via airplain (pyproject.toml)
-numpy==2.3.2
+numpy==2.2.6
     # via
     #   airplain (pyproject.toml)
     #   cftime
@@ -77,5 +77,3 @@ tzdata==2025.2
     # via
     #   airplain (pyproject.toml)
     #   pandas
-xarray==2025.7.1
-    # via airplain (pyproject.toml)
