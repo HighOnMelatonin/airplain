@@ -37,6 +37,7 @@ def landUse() -> bool:
     Ouptutfile: datafiles/processedLandUse.csv
     """
     regionCode: dict[str, str] = openJson("datafiles/regionMap.json")  # pyright: ignore[reportAssignmentType, reportUnknownVariableType, reportRedeclaration]
+    provinceCode: dict[str, dict[str, list[str]]] = openJson("datafiles/provinceMap.json")  # pyright: ignore[reportUnknownVariableType]
     ## Dictionary structure: {region: {year: {roads: value, parks: value}}}
     jsonOutput: dict[str, dict[str, dict[str, str]]] = {}
     output: str = ''
@@ -55,35 +56,46 @@ def landUse() -> bool:
         year: str = entry[2][0:4]       ## Get value of year  # pyright: ignore[reportRedeclaration]
         region: str = ''  # pyright: ignore[reportRedeclaration]
         ## Match the region code to the region name if it exists in the regionMap
+        pvName = ''
         if entry[1] in regionCode.keys():  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
             region = regionCode[entry[1].strip()]  # pyright: ignore[reportArgumentType]
+            ## Map region name to province name
+            for pvCode in provinceCode:
+                if region in provinceCode[pvCode]["municipalities"]:
+                    pvName: str = provinceCode[pvCode]["name"]  # pyright: ignore[reportAssignmentType]
+                    break
+        
+        ## If regionCode has no name, or pvCode does not have a pvName, set pvName to the regionCode
+        if pvName == '':
+            pvName: str = entry[1].strip()
+
+        if "\u2011" in pvName:
+            pvName = pvName.replace("\u2011", '-')
+
+        if pvName in jsonOutput.keys():
+            jsonOutput[pvName][year] = {"roads": entry[3].strip(), "parks": entry[4].strip()}
 
         else:
-            region = entry[1].strip()
+            jsonOutput[pvName] = {year: {"roads": entry[3].strip(), "parks": entry[4].strip()}}
 
-        if region in jsonOutput.keys():
-            jsonOutput[region][year] = {"roads": entry[3].strip(), "parks": entry[4].strip()}
-
-        else:
-            jsonOutput[region] = {year: {"roads": entry[3].strip(), "parks": entry[4].strip()}}
 
     ## Make a 3d array to conain all the data to be converted to csv
     ## + 1 for the header row
-    region: str = list(jsonOutput.keys())[0]
-    xDim: int = len(jsonOutput[region]) + 1     ## Get the number of years
+    pvName: str = list(jsonOutput.keys())[0]
+    xDim: int = len(jsonOutput[pvName]) + 1     ## Get the number of years
     yDim: int = len(jsonOutput) + 1             ## Get the number of regions
     array: list[list[list[str | tuple[str, str]]]] = [[[] for j in range(xDim)] for i in range(yDim)]
 
     ## Populate first row with the years (cell 0,0 will be left empty)
     column = 1
-    for year in jsonOutput[region]:
+    for year in jsonOutput[pvName]:
         array[0][column] = [year]
         column += 1
 
     ## Populate the first column with the regions
     row = 1
-    for region in jsonOutput:
-        array[row][0] = [region]
+    for pvName in jsonOutput:
+        array[row][0] = [pvName]
         row += 1
 
     ## Fill the rest of the cells with land use data
@@ -91,10 +103,10 @@ def landUse() -> bool:
     while row < yDim:
         column = 1
         while column < xDim - 1:
-            regionCode: str = array[row][0][0]  # pyright: ignore[reportAssignmentType]
+            pvCode: str = array[row][0][0]  # pyright: ignore[reportAssignmentType]
             year: str = array[0][column][0]  # pyright: ignore[reportAssignmentType]
-            roads: str = jsonOutput[regionCode][year]["roads"]
-            parks: str = jsonOutput[regionCode][year]["parks"]
+            roads: str = jsonOutput[pvCode][year]["roads"]
+            parks: str = jsonOutput[pvCode][year]["parks"]
             array[row][column] = [(roads, parks)]
             column += 1
 
@@ -132,10 +144,10 @@ def popDensity() -> bool:
 
     Output file: datafiles/processedPopDensity.csv
     """
-    regionCode: dict[str, str] = openJson("datafiles/regionMap.json")  # pyright: ignore[reportUnknownVariableType]
+    regionCode: dict[str, str] = openJson("datafiles/regionMap.json")  # pyright: ignore[reportUnknownVariableType, reportAssignmentType, reportRedeclaration]
     jsonOutput: dict[str, dict[str, str]] = {}
     output: str = ''
-    popDensityFile: str = "datafiles/netherlandsPopulationDensity.csv"
+    popDensityFile: str = "datafiles/NetherlandsPopulationDensity.csv"
 
     csvOutPath: str = "datafiles/processedPopDensity.csv"
     ## If output csv file does not exist, create it
@@ -390,69 +402,12 @@ def trimPM() -> bool:
     return True
 
 def carTravel() -> bool:
-    carTravelFile: str = "datafiles/transportTravelByProvince.json"
-    outputPublicFile: str = "datafiles/processedCarTravelPublic.csv"
-    outputPrivateFile: str = "datafiles/processedCarTravelPrivate.csv"
-    with open(carTravelFile, 'r', encoding='utf-8-sig') as f:
-        carTravelDict: dict = json.load(f)['value']
-    provinceMap: dict[str, str] = openJson("datafiles/provinceMap.json")
+    carTravelFile: str = "datafiles/carTravelByProvince.json"
+    outputFile: str = "datafiles/processedCarTravel.csv"
 
-    travelModeDict: dict[str, str] = {"A048583": 'Private', "A048584": "Private", "A018981": "Public", "A018982": "Public", "A018984": None, "A018985": None, "A018986": None }
-    
-    outputDict: dict[str: dict[str: float]] = {}
-    outputPrivate: pd.DataFrame = pd.DataFrame(columns=['Region','Year','Private Transport in km'])
-    outputPublic: pd.DataFrame = pd.DataFrame(columns=['Region','Year','Public Transport in km'])
-    for _, data in carTravelDict.items():
-        travelMode: str = data["TravelModes"]
-        travelMode: str | None = travelModeDict[travelMode]
-        if travelMode is None:
-            continue
-        region: str = data["RegionCharacteristics"].strip()
-        year: str = data["Periods"][0:4]
+    carTravelDict: dict[str, str] = openJson(carTravelFile)
+    regionMap: dict[str, str] = openJson("datafiles/regionMap.json")
 
-        dist1: str = data["Trips_1"]
-        dist2: str = data["Trips_4"]
-        try:
-            dist1 = float(dist1)
-            dist2 = float(dist2)
-            distTravelled: float = (dist1 + dist2) / 2
-        except:
-            distTravelled = -1.0
-        regionyear: str = region + "@" + year
-        if regionyear not in outputDict:
-            outputDict[regionyear] = {}
-        try:
-            outputDict[regionyear][travelMode] += distTravelled
-            if distTravelled == -1:
-                outputDict[regionyear][travelMode] += 1
-                continue
-        except:
-            outputDict[regionyear][travelMode] = distTravelled
-
-    for regionyear, travelData in outputDict.items():
-        region, year = regionyear.split("@")
-        try:
-            region: str = provinceMap[region]['name']
-        except:
-            continue
-        travelPublic: float = travelData.get("Public","")
-        travelPrivate: float = travelData.get("Private","")
-        
-        if travelPublic:
-            outputPublic.loc[len(outputPublic)] = [region, year, travelPublic] 
-        if travelPrivate:
-            outputPrivate.loc[len(outputPrivate)] = [region, year, travelPrivate]
-        
-    outputPublic = outputPublic.map(removeProblemCharacters)
-    outputPrivate = outputPrivate.map(removeProblemCharacters)
-
-    print(f'{outputPublic=}')
-    print(f'{outputPrivate=}')
-            
-    outputPublic.to_csv(outputPublicFile, index=False)
-    outputPrivate.to_csv(outputPrivateFile, index=False)
-
-    return True
     
 
 
@@ -469,8 +424,6 @@ def getFiveNumberSummary(array: np.ndarray | pd.DataFrame) -> dict[str: int]:  #
     return min, q1, median, q3, max  # pyright: ignore[reportReturnType]
 
 def removeProblemCharacters(string: str) -> str:
-    if not isinstance(string, str):
-        return string
     problemCharacters: dict[str, str] = {"â" : 'a', "ú": 'u'}
     for problem, fixed in problemCharacters.items():
         string = string.replace(problem, fixed)
@@ -484,13 +437,12 @@ def removeProblemCharacters(string: str) -> str:
 if __name__ == "__main__":
     # Example usage
     try:
-        # print(translateRegionCode())
-        # trimRegionCode("reregionCode")
-        # print(popDensity())
-        # print(trimPM())
-        # print(trimProximity())
-        # print(landUse())
-        print(carTravel())
+        print(translateRegionCode())
+        trimRegionCode("reregionCode")
+        print(popDensity())
+        print(trimPM())
+        print(trimProximity())
+        print(landUse())
         pass
 
     except FileNotFoundError as e:
