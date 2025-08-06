@@ -333,96 +333,96 @@ def trimProximity() -> bool:
     output.to_csv(outputFile, index=False)
     return True
 
-def translateRegionCode() -> None:
-    """
-    Translates region code from csv format to json format, maps NL codes to region name
-    """
-    NLPath: str = "datafiles/netherlandsRegionCodeTranslation2.csv"
-    outputPath: str = "datafiles/measurementStations.json"
-    file: dict[str, str] = openJson(outputPath)  # noqa: F841  # pyright: ignore[reportUnusedVariable, reportUnknownVariableType]
+# def translateRegionCode() -> None:
+#     """
+#     Translates region code from csv format to json format, maps NL codes to region name
+#     """
+#     NLPath: str = "datafiles/netherlandsRegionCodeTranslation2.csv"
+#     outputPath: str = "datafiles/measurementStations.json"
+#     file: dict[str, str] = openJson(outputPath)  # noqa: F841  # pyright: ignore[reportUnusedVariable, reportUnknownVariableType]
 
-    output: dict[str, str] = {}
-    with open(NLPath, 'r') as f:
-        lines = f.readlines()
-        for line in lines:
-            parted: list[str] = line.split(',')
-            if parted[1] == '\n':
-                output[parted[0]] = parted[0]
-            else:
-                try:
-                    output[parted[0]] = parted[2].strip()
-                except:
-                    output[parted[0]] = parted[0]
+#     output: dict[str, str] = {}
+#     with open(NLPath, 'r') as f:
+#         lines = f.readlines()
+#         for line in lines:
+#             parted: list[str] = line.split(',')
+#             if parted[1] == '\n':
+#                 output[parted[0]] = parted[0]
+#             else:
+#                 try:
+#                     output[parted[0]] = parted[2].strip()
+#                 except:
+#                     output[parted[0]] = parted[0]
     
-    json.dump(output, open(outputPath, 'w'), indent=4)
-    return None
+#     json.dump(output, open(outputPath, 'w'), indent=4)
+#     return None
 
 
-def trimRegionCode(filename: str) -> None:
-    """
-    Trim region code Json to only map region codes to their names.
+# def trimRegionCode(filename: str) -> None:
+#     """
+#     Trim region code Json to only map region codes to their names.
 
-    Naam_2 refers to the region name
-    Code_1 refers to the region code
+#     Naam_2 refers to the region name
+#     Code_1 refers to the region code
 
-    Args:
-        filename (str): The name of the JSON file to process (without .json extension).
+#     Args:
+#         filename (str): The name of the JSON file to process (without .json extension).
 
-    Returns None
+#     Returns None
 
-    File output: datafiles/regionMap.json
-    """
-    regionRaw: dict[str, dict[str, str]] = openJson(f"datafiles/{filename}.json")["value"]  # pyright: ignore[reportUnknownVariableType]
-    regionMap: dict[str, str] = {}
+#     File output: datafiles/regionMap.json
+#     """
+#     regionRaw: dict[str, dict[str, str]] = openJson(f"datafiles/{filename}.json")["value"]  # pyright: ignore[reportUnknownVariableType]
+#     regionMap: dict[str, str] = {}
 
-    for region in regionRaw:  # pyright: ignore[reportUnknownVariableType]
-        item: dict[str, str] = regionRaw[region]  # pyright: ignore[reportUnknownVariableType]
-        regionMap[item["Code_1"].strip()] = item["Naam_2"].strip()  # pyright: ignore[reportUnknownMemberType]
+#     for region in regionRaw:  # pyright: ignore[reportUnknownVariableType]
+#         item: dict[str, str] = regionRaw[region]  # pyright: ignore[reportUnknownVariableType]
+#         regionMap[item["Code_1"].strip()] = item["Naam_2"].strip()  # pyright: ignore[reportUnknownMemberType]
 
-    if not os.path.exists("datafiles/regionMap.json"):
-        f = open("datafiles/regionMap.json", 'x')
-        json.dump({}, f)  # Initialize with an empty JSON object
-        f.close()
+#     if not os.path.exists("datafiles/regionMap.json"):
+#         f = open("datafiles/regionMap.json", 'x')
+#         json.dump({}, f)  # Initialize with an empty JSON object
+#         f.close()
 
-    json.dump(regionMap, open("datafiles/regionMap.json", "w"), indent=4)
+#     json.dump(regionMap, open("datafiles/regionMap.json", "w"), indent=4)
 
-    return None
+#     return None
 
 
-def trimPM() -> bool:
-    """
-    Remove unnecessary data from the PM2.5 file
+# def trimPM() -> bool:
+#     """
+#     Remove unnecessary data from the PM2.5 file
 
-    Returns True when done correctly
-    """
-    pmFile: str = "datafiles/pm2.5_2013-2023_netherlands.csv"
-    outputFile: str = "datafiles/processedPm2.5.csv"
+#     Returns True when done correctly
+#     """
+#     pmFile: str = "datafiles/pm2.5_2013-2023_netherlands.csv"
+#     outputFile: str = "datafiles/processedPm2.5.csv"
 
-    # Create the output file if it does not exist
-    if not os.path.exists(outputFile):
-        f = open(outputFile, 'x')
-        f.close()
-    regionMap: dict[str, str] = openJson("datafiles/regionMap.json")  # pyright: ignore[reportUnknownVariableType]
-    nlMap: dict[str, str] = openJson("datafiles/measurementStations.json")  # pyright: ignore[reportUnknownVariableType]
+#     # Create the output file if it does not exist
+#     if not os.path.exists(outputFile):
+#         f = open(outputFile, 'x')
+#         f.close()
+#     regionMap: dict[str, str] = openJson("datafiles/regionMap.json")  # pyright: ignore[reportUnknownVariableType]
+#     nlMap: dict[str, str] = openJson("datafiles/measurementStations.json")  # pyright: ignore[reportUnknownVariableType]
 
-    with open(pmFile, 'r') as f:
-        lines: list[str] = f.readlines()
-        lines = lines[:61]  ## Removes description at the bottom of the csv
+#     with open(pmFile, 'r') as f:
+#         lines: list[str] = f.readlines()
+#         lines = lines[:61]  ## Removes description at the bottom of the csv
 
-        # Iterate through the lines and standardise empty values, and translate region codes
-        for i in range(1, len(lines)):   # Skip the header row
-            line: str = lines[i]
-            code = line.split(",")[0]
-            lines[i] = line.replace("-", "")
-            gmCode = nlMap.get(code,code)
-            region = regionMap.get(gmCode,gmCode)
-            lines[i] = line.replace(code, region)  # Uncomment once regionMap is available
+#         # Iterate through the lines and standardise empty values, and translate region codes
+#         for i in range(1, len(lines)):   # Skip the header row
+#             line: str = lines[i]
+#             code = line.split(",")[0]
+#             lines[i] = line.replace("-", "")
+#             gmCode = nlMap.get(code,code)
+#             region = regionMap.get(gmCode,gmCode)
+#             lines[i] = line.replace(code, region)  # Uncomment once regionMap is available
 
-    output = ''.join(lines)
-    output = removeProblemCharacters(output)
+#     output = ''.join(lines)
+#     output = removeProblemCharacters(output)
 
-    print(output, file=open(outputFile, 'w'))
-    return True
+#     print(output, file=open(outputFile, 'w'))
+#     return True
 
 def carTravel() -> bool:
 
@@ -518,9 +518,10 @@ def removeProblemCharacters(string: str) -> str:
 
 if __name__ == "__main__":
     # Example usage
-    print(translateRegionCode())
-    trimRegionCode("reregionCode")
+    # print(translateRegionCode())
+    # trimRegionCode("reregionCode")
+    # print(trimPM())
     print(popDensity())
-    print(trimPM())
     print(trimProximity())
     print(landUse())
+    print(carTravel())
