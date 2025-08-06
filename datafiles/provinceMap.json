@@ -1,0 +1,51 @@
+{
+  "PV20": {
+    "name": "Groningen",
+    "municipalities": ["Eemsdelta","Groningen","Het Hogeland","Midden‑Groningen","Oldambt","Pekela","Stadskanaal","Veendam","Westerkwartier","Westerwolde"]
+  },
+  "PV21": {
+    "name": "Fryslân",
+    "municipalities": ["Achtkarspelen","Ameland","Dantumadiel","De Fryske Marren","Harlingen","Heerenveen","Leeuwarden","Noardeast‑Friesland","Ooststellingwerf","Opsterland","Schiermonnikoog","Smallingerland","Súdwest‑Friesland","Terschelling","Tytsjerksteradiel","Vlieland","Waadhoeke","Weststellingwerf"]
+  },
+  "PV22": {
+    "name": "Drenthe",
+    "municipalities": ["Aa en Hunze","Assen","Borger‑Odoorn","Coevorden","De Wolden","Emmen","Hoogeveen","Midden‑Drenthe","Meppel","Noordenveld","Tynaarlo","Westerveld"]
+  },
+  "PV23": {
+    "name": "Overijssel",
+    "municipalities": ["Almelo","Borne","Dalfsen","Deventer","Dinkelland","Enschede","Haaksbergen","Hardenberg","Hellendoorn","Hengelo","Hof van Twente","Kampen","Losser","Oldenzaal","Olst‑Wijhe","Ommen","Raalte","Rijssen‑Holten","Steenwijkerland","Staphorst","Tubbergen","Twenterand","Wierden","Zwartewaterland","Zwolle"]
+  },
+  "PV24": {
+    "name": "Flevoland",
+    "municipalities": ["Almere","Dronten","Lelystad","Noordoostpolder","Urk","Zeewolde"]
+  },
+  "PV25": {
+    "name": "Gelderland",
+    "municipalities": ["Aalten","Apeldoorn","Arnhem","Barneveld","Berg en Dal","Berkelland","Beuningen","Bronckhorst","Brummen","Buren","Culemborg","Doesburg","Doetinchem","Druten","Duiven","Ede","Elburg","Epe","Ermelo","Geldermalsen","Harderwijk","Hattem","Heerde","Heumen","Lingewaard","Lochem","Maasdriel","Montferland","Neder‑Betuwe","Nijkerk","Nijmegen","Nunspeet","Oldebroek","Oost Gelre","Overbetuwe","Putten","Renkum","Rheden","Rozendaal","Scherpenzeel","Tiel","Voorst","Wageningen","West Betuwe","West Maas en Waal","Westervoort","Wijchen","Winterswijk","Zaltbommel","Zevenaar","Zutphen"]
+  },
+  "PV26": {
+    "name": "Utrecht",
+    "municipalities": ["Amersfoort","Baarn","Bunnik","Bunschoten","De Bilt","De Ronde Venen","Eemnes","Houten","IJsselstein","Leusden","Lopik","Montfoort","Nieuwegein","Oudewater","Renswoude","Rhenen","Soest","Stichtse Vecht","Utrecht","Utrechtse Heuvelrug","Veenendaal","Vijfheerenlanden","Wijk bij Duurstede","Woerden","Woudenberg","Zeist"]
+  },
+  "PV27": {
+    "name": "Noord‑Holland",
+    "municipalities": ["Aalsmeer","Amstelveen","Amsterdam","Blaricum","Bergen","Beverwijk","Bloemendaal","Castricum","Den Helder","Diemen","Dijk en Waard","Drechterland","Edam‑Volendam","Enkhuizen","Gooise Meren","Haarlem","Haarlemmermeer","Heemskerk","Heemstede","Heiloo","Hilversum","Hollands Kroon","Hoorn","Huizen","Koggenland","Landsmeer","Laren","Medemblik","Oostzaan","Ouder‑Amstel","Purmerend","Uithoorn","Waterland","Wormerland","Zaanstad"]
+  },
+  "PV28": {
+    "name": "Zuid‑Holland",
+    "municipalities": ["Albrandswaard","Barendrecht","Bodegraven‑Reeuwijk","Capelle aan den IJssel","Delft","Dordrecht","Gorinchem","Gouda","Hendrik‑Ido‑Ambacht","Hillegom","Hoeksche Waard","Kaag en Braassem","Katwijk","Krimpenerwaard","Lansingerland","Leiderdorp","Leidschendam‑Voorburg","Lisse","Maassluis","Midden‑Delfland","Molenlanden","Nieuwkoop","Nissewaard","Noordwijk","Oegstgeest","Papendrecht","Pijnacker‑Nootdorp","Ridderkerk","Rijswijk","Rotterdam","Schiedam","Teylingen","The Hague","Vlaardingen","Voorne aan Zee","Voorschoten","Waddinxveen","Wassenaar","Zoetermeer","Zoeterwoude","Zuidplas","Zwijndrecht"
+  ]
+  },
+  "PV29": {
+    "name": "Zeeland",
+    "municipalities": ["Borsele","Goes","Hulst","Kapelle","Middelburg","Noord‑Beveland","Reimerswaal","Schouwen‑Duiveland","Sluis","Terneuzen","Tholen","Veere","Vlissingen"]
+  },
+  "PV30": {
+    "name": "Noord‑Brabant",
+    "municipalities": ["Alphen‑Chaam","Altena","Asten","Baarle‑Nassau","Bergeijk","Bergen op Zoom","Bernheze","Best","Bladel","Boekel","Boxtel","Breda","Cranendonck","Deurne","Dongen","Drimmelen","Eersel","Eindhoven","Etten‑Leur","Geertruidenberg","Geldrop‑Mierlo","Gemert‑Bakel","Gilze en Rijen","Goirle","Halderberge","Heeze‑Leende","Helmond","Heusden","Hilvarenbeek","Laarbeek","Land van Cuijk","Loon op Zand","Maashorst","Meierijstad","Moerdijk","Nuenen, Gerwen en Nederwetten","Oirschot","Oisterwijk","Oosterhout","Oss","Reusel‑De Mierden","Roosendaal","Rucphen","'s‑Hertogenbosch","Sint‑Michielsgestel","Someren","Son en Breugel","Steenbergen","Tilburg","Valkenswaard","Veldhoven","Vught","Waalre","Waalwijk","Woensdrecht","Zundert"]
+  },
+  "PV31": {
+    "name": "Limburg",
+    "municipalities": ["Beek","Beekdaelen","Beesel","Bergen","Brunssum","Echt‑Susteren","Eijsden‑Margraten","Gennep","Gulpen‑Wittem","Heerlen","Kerkrade","Landgraaf","Leudal","Maasgouw","Maastricht","Meerssen","Mook en Middelaar","Nederweert","Peel en Maas","Roerdalen","Roermond","Sittard‑Geleen","Stein","Vaals","Valkenburg aan de Geul","Venlo","Venray","Voerendaal","Weert"]
+  }
+}
