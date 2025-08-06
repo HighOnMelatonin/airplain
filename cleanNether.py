@@ -448,6 +448,7 @@ def carTravel() -> bool:
 
         dist1: str = data["Trips_1"]
         dist2: str = data["Trips_4"]
+        print(dist1, dist2)
         try:
             dist1 = float(dist1)
             dist2 = float(dist2)
@@ -468,7 +469,7 @@ def carTravel() -> bool:
     for regionyear, travelData in outputDict.items():
         region, year = regionyear.split("@")
         try:
-            region: str = provinceMap[region]['name']
+            assert region in provinceMap.keys()
         except:
             continue
         travelPublic: float = travelData.get("Public","")
@@ -521,7 +522,3 @@ if __name__ == "__main__":
     # print(translateRegionCode())
     # trimRegionCode("reregionCode")
     # print(trimPM())
-    print(popDensity())
-    print(trimProximity())
-    print(landUse())
-    print(carTravel())
