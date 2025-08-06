@@ -7,14 +7,6 @@ st.set_page_config(
 
 st.write("# Prediction Model")
 
-# so rn our predictor variables are:
-# pop density (people/km2)
-# main road land use (hectares)
-# park and public garden land use (hectares)
-# normalized proximity to facilities (0<10)
-# normalized proximity to facilities (10<20)
-# normalized proximity to facilities (20<50)
-
 
 def clear_inputs():
     st.session_state.input_pop_density = ""
@@ -59,5 +51,3 @@ if submit:
 
 
 st.button("Clear Form", on_click=clear_inputs)
-
-

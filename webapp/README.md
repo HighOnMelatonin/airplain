@@ -3,19 +3,22 @@
 ## App Overview
 
 This webapp contains 3 pages:
-* Home page
-* Predictive Model page
-* Sources page
+* Home 
+    * Basic landing page with information
+* Predictive Model 
+    * Form to Input Parameters and Obtain Predicted Information
+* Sources 
+    * Links to all our raw data, as seen in the data files ```README.md```
 
-Airplain is a linear regression model written in Python to predict the rates of air pollution in a city.  
+carGo is a linear regression model written in Python to predict private car reliance in a city.  
 
 ## Expected Output
 
-The predicted PM2.5 value from the estimators, based on our model, as an integer.
+The predicted total average distance travelled per trip private car reliance from the estimators, calculated using on our model
 
 ## Prerequisites
 
-This webapp runs on Streamlit and Python 3.13.
+This webapp runs on Streamlit and Python 3.10.
 
 ### Installing Streamlit
 
