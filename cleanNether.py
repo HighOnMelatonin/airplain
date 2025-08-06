@@ -135,7 +135,7 @@ def popDensity() -> bool:
     regionCode: dict[str, str] = openJson("datafiles/regionMap.json")  # pyright: ignore[reportUnknownVariableType]
     jsonOutput: dict[str, dict[str, str]] = {}
     output: str = ''
-    popDensityFile: str = "datafiles/NetherlandsPopulationDensity.csv"
+    popDensityFile: str = "datafiles/netherlandsPopulationDensity.csv"
 
     csvOutPath: str = "datafiles/processedPopDensity.csv"
     ## If output csv file does not exist, create it
@@ -390,12 +390,69 @@ def trimPM() -> bool:
     return True
 
 def carTravel() -> bool:
-    carTravelFile: str = "datafiles/carTravelByProvince.json"
-    outputFile: str = "datafiles/processedCarTravel.csv"
+    carTravelFile: str = "datafiles/transportTravelByProvince.json"
+    outputPublicFile: str = "datafiles/processedCarTravelPublic.csv"
+    outputPrivateFile: str = "datafiles/processedCarTravelPrivate.csv"
+    with open(carTravelFile, 'r', encoding='utf-8-sig') as f:
+        carTravelDict: dict = json.load(f)['value']
+    provinceMap: dict[str, str] = openJson("datafiles/provinceMap.json")
 
-    carTravelDict: dict[str, str] = openJson(carTravelFile)
-    regionMap: dict[str, str] = openJson("datafiles/regionMap.json")
+    travelModeDict: dict[str, str] = {"A048583": 'Private', "A048584": "Private", "A018981": "Public", "A018982": "Public", "A018984": None, "A018985": None, "A018986": None }
+    
+    outputDict: dict[str: dict[str: float]] = {}
+    outputPrivate: pd.DataFrame = pd.DataFrame(columns=['Region','Year','Private Transport in km'])
+    outputPublic: pd.DataFrame = pd.DataFrame(columns=['Region','Year','Public Transport in km'])
+    for _, data in carTravelDict.items():
+        travelMode: str = data["TravelModes"]
+        travelMode: str | None = travelModeDict[travelMode]
+        if travelMode is None:
+            continue
+        region: str = data["RegionCharacteristics"].strip()
+        year: str = data["Periods"][0:4]
 
+        dist1: str = data["Trips_1"]
+        dist2: str = data["Trips_4"]
+        try:
+            dist1 = float(dist1)
+            dist2 = float(dist2)
+            distTravelled: float = (dist1 + dist2) / 2
+        except:
+            distTravelled = -1.0
+        regionyear: str = region + "@" + year
+        if regionyear not in outputDict:
+            outputDict[regionyear] = {}
+        try:
+            outputDict[regionyear][travelMode] += distTravelled
+            if distTravelled == -1:
+                outputDict[regionyear][travelMode] += 1
+                continue
+        except:
+            outputDict[regionyear][travelMode] = distTravelled
+
+    for regionyear, travelData in outputDict.items():
+        region, year = regionyear.split("@")
+        try:
+            region: str = provinceMap[region]['name']
+        except:
+            continue
+        travelPublic: float = travelData.get("Public","")
+        travelPrivate: float = travelData.get("Private","")
+        
+        if travelPublic:
+            outputPublic.loc[len(outputPublic)] = [region, year, travelPublic] 
+        if travelPrivate:
+            outputPrivate.loc[len(outputPrivate)] = [region, year, travelPrivate]
+        
+    outputPublic = outputPublic.map(removeProblemCharacters)
+    outputPrivate = outputPrivate.map(removeProblemCharacters)
+
+    print(f'{outputPublic=}')
+    print(f'{outputPrivate=}')
+            
+    outputPublic.to_csv(outputPublicFile, index=False)
+    outputPrivate.to_csv(outputPrivateFile, index=False)
+
+    return True
     
 
 
@@ -412,6 +469,8 @@ def getFiveNumberSummary(array: np.ndarray | pd.DataFrame) -> dict[str: int]:  #
     return min, q1, median, q3, max  # pyright: ignore[reportReturnType]
 
 def removeProblemCharacters(string: str) -> str:
+    if not isinstance(string, str):
+        return string
     problemCharacters: dict[str, str] = {"â" : 'a', "ú": 'u'}
     for problem, fixed in problemCharacters.items():
         string = string.replace(problem, fixed)
@@ -425,12 +484,13 @@ def removeProblemCharacters(string: str) -> str:
 if __name__ == "__main__":
     # Example usage
     try:
-        print(translateRegionCode())
-        trimRegionCode("reregionCode")
-        print(popDensity())
-        print(trimPM())
-        print(trimProximity())
-        print(landUse())
+        # print(translateRegionCode())
+        # trimRegionCode("reregionCode")
+        # print(popDensity())
+        # print(trimPM())
+        # print(trimProximity())
+        # print(landUse())
+        print(carTravel())
         pass
 
     except FileNotFoundError as e:
