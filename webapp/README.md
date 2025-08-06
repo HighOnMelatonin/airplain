@@ -3,19 +3,36 @@
 ## App Overview
 
 This webapp contains 3 pages:
-* Home page
-* Predictive Model page
-* Sources page
+* Home 
+    * Basic landing page with information
+* Predictive Model 
+    * Form to Input Parameters and Obtain Predicted Information
+* Sources 
+    * Links to all our raw data, as seen in the data files ```README.md```
 
-Airplain is a linear regression model written in Python to predict the rates of air pollution in a city.  
+carGo is a linear regression model written in Python to predict urban private car reliance.
+
+## File Structure
+
+webapp/
+│
+├── .streamlit/
+│   └── config.toml               # Streamlit configuration file (e.g. app title, theme)
+├── pages/
+│   ├── 1_Prediction_Model.py     # Page for running the prediction model
+│   └── 2_Sources.py              # Page listing data sources or references
+├── .gitignore                    # Git ignore file for untracked files/folders
+├── Home.py                       # Main landing page of the Streamlit app
+├── library.py                    # Helper functions for regression model
+└── README.md                     # Project documentation
 
 ## Expected Output
 
-The predicted PM2.5 value from the estimators, based on our model, as an integer.
+The predicted total average distance travelled per trip private car reliance from the estimators, calculated using on our model
 
 ## Prerequisites
 
-This webapp runs on Streamlit and Python 3.13.
+This webapp runs on Streamlit and Python 3.10.
 
 ### Installing Streamlit
 
@@ -27,3 +44,14 @@ pip install streamlit
 ### Installing Python
 
 [Download Python here](https://www.python.org/downloads/)
+
+### How to run
+
+```
+git clone 
+```
+Or download the code as a zip file, unzip, then run
+
+```
+streamlit run Home.py
+```

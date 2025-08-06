@@ -5,17 +5,9 @@ st.set_page_config(
     page_title="Prediction Model"
 )
 
-st.write("# Prediction Model")
+st.write("# Prediction Model for Urban Car Reliance")
 
-# so rn our predictor variables are:
-# pop density (people/km2)
-# main road land use (hectares)
-# park and public garden land use (hectares)
-# normalized proximity to facilities (0<10)
-# normalized proximity to facilities (10<20)
-# normalized proximity to facilities (20<50)
-
-
+# Helper function to clear current input in form
 def clear_inputs():
     st.session_state.input_pop_density = ""
     st.session_state.input_road_land = ""
@@ -25,7 +17,7 @@ def clear_inputs():
     st.session_state.input_proximity_fifty = ""
     st.session_state.input_public_transport = ""
 
-
+# Form for all data inputs
 with st.form("parameters", clear_on_submit=False):
     pop_density = st.text_input("Estimated Population Density (in people/km²):", key="input_pop_density")
     road_land_use = st.text_input("Main Roads Land Use (in hectares):", key="input_road_land")
@@ -40,6 +32,7 @@ with st.form("parameters", clear_on_submit=False):
 if submit:
     if pop_density and road_land_use and park_garden_land_use and zero_to_ten_proximity and ten_to_twenty_proximity and twenty_to_fifty_proximity and public_transport:
         try:
+            # Convert all inputs to float
             pop_density = float(pop_density)
             road_land_use = float(road_land_use)
             park_garden_land_use = float(park_garden_land_use)
@@ -47,10 +40,12 @@ if submit:
             ten_to_twenty_proximity = float(ten_to_twenty_proximity)
             twenty_to_fifty_proximity = float(twenty_to_fifty_proximity)
             public_transport = float(public_transport)
+
+            # Make sure that the proximities add up to 1
             if np.isclose(zero_to_ten_proximity + ten_to_twenty_proximity + twenty_to_fifty_proximity,1.0):
                 pass # insert function here
     
-        except ValueError:
+        except ValueError: # if float conversion fails
             st.write("Please key in valid values!")
 
         st.rerun()
@@ -59,5 +54,3 @@ if submit:
 
 
 st.button("Clear Form", on_click=clear_inputs)
-
-
