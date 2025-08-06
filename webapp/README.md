@@ -17,7 +17,7 @@ carGo is a linear regression model written in Python to predict urban private ca
 webapp/
 │
 ├── .streamlit/
-│   └── config.toml               # Streamlit configuration file (e.g. app title, theme)
+│   └── config.toml               # Streamlit configuration file, mainly for the theme
 ├── pages/
 │   ├── 1_Prediction_Model.py     # Page for running the prediction model
 │   └── 2_Sources.py              # Page listing data sources or references
@@ -50,8 +50,14 @@ pip install streamlit
 ```
 git clone 
 ```
-Or download the code as a zip file, unzip, then run
+Or download the code as a zip file, unzip
 
+If in terminal:
+```
+python -m streamlit run Home.py
+```
+
+If in virtual environment:
 ```
 streamlit run Home.py
 ```
