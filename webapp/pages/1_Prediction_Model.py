@@ -5,7 +5,7 @@ st.set_page_config(
     page_title="Prediction Model"
 )
 
-st.write("# Prediction Model")
+st.write("# Prediction Model for Urban Car Reliance")
 
 
 def clear_inputs():

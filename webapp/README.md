@@ -10,7 +10,21 @@ This webapp contains 3 pages:
 * Sources 
     * Links to all our raw data, as seen in the data files ```README.md```
 
-carGo is a linear regression model written in Python to predict private car reliance in a city.  
+carGo is a linear regression model written in Python to predict urban private car reliance.
+
+## File Structure
+
+webapp/
+│
+├── .streamlit/
+│   └── config.toml               # Streamlit configuration file (e.g. app title, theme)
+├── pages/
+│   ├── 1_Prediction_Model.py     # Page for running the prediction model
+│   └── 2_Sources.py              # Page listing data sources or references
+├── .gitignore                    # Git ignore file for untracked files/folders
+├── Home.py                       # Main landing page of the Streamlit app
+├── library.py                    # Helper functions for regression model
+└── README.md                     # Project documentation
 
 ## Expected Output
 
@@ -30,3 +44,14 @@ pip install streamlit
 ### Installing Python
 
 [Download Python here](https://www.python.org/downloads/)
+
+### How to run
+
+```
+git clone 
+```
+Or download the code as a zip file, unzip, then run
+
+```
+streamlit run Home.py
+```
