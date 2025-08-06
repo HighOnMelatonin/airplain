@@ -10,6 +10,7 @@
 3. [Netherlands PM2.5 data](https://www.luchtmeetnet.nl/rapportages)
 4. [Netherlands proximity to facilites](https://opendata.cbs.nl/statline/#/CBS/en/dataset/85560ENG/table?ts=1754288993424)
 5. [Land use by municipality](https://opendata.cbs.nl/statline/portal.html?_la=en&_catalog=CBS&tableId=70262ENG&_theme=1182)
+6. [Transportation modes by province](https://opendata.cbs.nl/statline/portal.html?_la=en&_catalog=CBS&tableId=84710ENG&_theme=1190)
 
 ## Interpreting the Raw data:
 Refer to [region map](/regionMap.json) to translate the GM region codes to readable names
@@ -17,10 +18,11 @@ Refer to [region map](/regionMap.json) to translate the GM region codes to reada
 Refer to [station code](/measurementStations.json) to translate the NL station codes to GM region code (some NL codes overlap with region codes as there can be multiple measurement stations in the same region)
 
 ### File paths (processed data)
-1. [PM 2.5](\processed_pm2.5.csv)
-2. [Population density](\processedPopDensity.csv)
-3. [Processed proximity](\processedProximity.csv)
-4. [Processed Land Use](\processedLandUse.csv)
+1. [Population density](\processedPopDensity.csv)
+2. [Processed proximity](\processedProximity.csv)
+3. [Processed Land Use](\processedLandUse.csv)
+4. [Processed private transport](/processedCarTravelPrivate.csv)
+5. [Processed public transport](/processedCarTravelPublic.csv)
 
 ## Processed Data
 All data were processed and converted in csv format for ease of import into `pandas`, the processed data is formatted in the following format:
