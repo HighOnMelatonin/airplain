@@ -4,14 +4,22 @@ st.set_page_config(
     page_title="Home"
 )
 
-st.write("""
-# Welcome to Mini Project 2
+st.markdown("""
+# Welcome to **Airplain**
 
-In this project, you will create a simple math game which you can send to different users.
-
-To get started:
-1. Click the User page and add a few users.
-1. Click the Questions page and add some questions. Select which user you want to challenge.
-1. Click the Challenge page and select that particular user. Choose the Challenge you want to attempt and put in the answer.
-1. Click the Hall of Fame to see how you fare with other users.
+We are a team from SUTD developing Airplain as part of our Design Thinking Project module.  
+Airplain is a linear regression model written in python to predict the rates of air pollution in a city.  
+Parameters:
+* Population density (people/km2)
+* Land use for main roads (in hectares)
+* Land use for parks and public gardens (hectares)
+* Normalized proximity to facilities from 0 to 10
+* Normalized proximity to facilities from 10 to 20
+* Normalized proximity to facilities from 20 to 50   
+    * The sum of these 3 normalized parameters must be 1
+            
+[Our Github Repo](https://github.com/HighOnMelatonin/airplain)
 """)
+
+st.page_link("pages/1_Prediction_Model.py", label="Click here for our **Prediction Model**", icon="📈")
+st.page_link("pages/2_Sources.py", label="Click here for our **Sources**", icon="🔗")
