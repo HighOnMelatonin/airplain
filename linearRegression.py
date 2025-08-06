@@ -339,45 +339,98 @@ if __name__ == '__main__':
     print(cn.trimPM())
     print(cn.trimProximity())
     print(cn.landUse())
+    print(cn.carTravel())
 
     #Grab the cleaned data
     print('-'*150)
-    # with open('datafiles\processed_land_use.csv','r') as f:
-    #     landUse: list[str] = f.readlines()
-    
-    
-   
-
-
-    print('-'*150)
     popDensityDF: pd.DataFrame = pd.read_csv('datafiles/processedPopDensity.csv',index_col=0).fillna(-1)
-    pmDF: pd.DataFrame = pd.read_csv('datafiles/processedPm2.5.csv',index_col=0).fillna(-1)
+    # pmDF: pd.DataFrame = pd.read_csv('datafiles/processedPm2.5.csv',index_col=0).fillna(-1)
     proximityDF: pd.DataFrame = pd.read_csv('datafiles/processedProximity.csv')
     landUseDF: pd.DataFrame = pd.read_csv('datafiles/processedLandUse.csv',sep=";",index_col=0).fillna(-1) 
+    transportPublicDF: pd.DataFrame = pd.read_csv('datafiles/processedTravelPublic.csv')
+    transportPrivateDF: pd.DataFrame = pd.read_csv('datafiles/processedTravelPrivate.csv')
     print('-'*150)
     print(f'{popDensityDF=}')
-    print(f'{pmDF=}')
+    # print(f'{pmDF=}')
     print(f'{proximityDF=}')
     print(f'{landUseDF=}')
+    print(f'{transportPrivateDF=}')
+    print(f'{transportPublicDF=}')
     print('-'*150)
 
+    #Find the row that has the specified region and year, then return the target column in that row
+    def getDataFromDF(df: pd.DataFrame, region: str, year: str, targetCol: str) -> str:
+        '''
+        Descripton.
+        
+        Args:
+            some_arg (Any):
+        
+        Returns:
+            Any:
+        
+        Functionality
+            - does a thing
+        
+        Raises:
+            AssertionError:
+        '''
+        #print(f'{region=}, {type(region)=}, {year=}, {type(year)=}')
+        #print(year, type(year))
+        year = int(year)
+        regionMatches: pd.Series = df["Region"] == region
+        yearMatches: pd.Series = df["Year"] == year
+        regionMatches: set = set(df.index[regionMatches].tolist())
+        yearMatches: set = set(df.index[yearMatches].tolist())
+        desiredIndices: set = regionMatches & yearMatches
+        #print(f'{len(regionMatches)=}, {len(yearMatches)=}')
+        #print(f'{len(desiredIndices)=}')
+        assert len(desiredIndices) == 1
+        desiredIndex: int = list(desiredIndices)[0]
+        targetIndex: int = df.columns.get_loc(targetCol)
+
+        output = df.iloc[desiredIndex,targetIndex]
+        return output
+
+
+
+        
+
     #Merge the cleaned data into 1 dataframe
-    newColumns: pd.DataFrame = pd.DataFrame(columns=['Population Density','PM2.5', 'Total Road Area', 'Total Greenery Area'])
+    newColumns: pd.DataFrame = pd.DataFrame(columns=['Population Density', 'Total Road Area', 'Total Greenery Area','Public Transport Travel','Private Transport Travel'])
     for index, row in proximityDF.iterrows():
         region: str = row['Region']
         year: str = str(row['Year'])
+
+        #Process population density
         try:
             popDensity: float = popDensityDF.loc[region,year]
         except:
             popDensity: float = -1.0
-        try:
-            pm25: float = pmDF.loc[region,year]
-            if "-" in pm25:
-                pm25: float = -1.0
-            if "*" in pm25:
-                pm25: float = pm25.strip().replace(" *","")
-        except:
-            pm25: float = -1.0
+
+        # try:
+        #     pm25: float = pmDF.loc[region,year]
+        #     if "-" in pm25:
+        #         pm25: float = -1.0
+        #     if "*" in pm25:
+        #         pm25: float = pm25.strip().replace(" *","")
+        # except:
+        #     pm25: float = -1.0
+        # if isinstance(pm25, pd.Series):
+        #     finalValue: float = 0
+        #     isDash: bool = False
+        #     for val in pm25:
+        #         val = val.strip()
+        #         if val == "-":
+        #             isDash: bool = True
+        #             break
+        #         val = val.replace(" *","")
+        #         finalValue += float(val)
+        #     pm25: float = finalValue / len(pm25)
+        #     if isDash:
+        #         pm25: float = -1.0
+
+        #Process land use
         try:
             roadArea: float | str; greenArea: float
             value = landUseDF.loc[region, year]
@@ -386,39 +439,39 @@ if __name__ == '__main__':
             roadArea, greenArea = value.split(",")
             roadArea = float(roadArea)
             greenArea = float(greenArea)
-            
         except:
             roadArea: float = -1.0
             greenArea: float = -1.0
-        if isinstance(pm25, pd.Series):
-            finalValue: float = 0
-            isDash: bool = False
-            for val in pm25:
-                val = val.strip()
-                if val == "-":
-                    isDash: bool = True
-                    break
-                val = val.replace(" *","")
-                finalValue += float(val)
-            pm25: float = finalValue / len(pm25)
-            if isDash:
-                pm25: float = -1.0
+
+        #Process travel data
+        try:
+            publicTransport: float = float(getDataFromDF(transportPublicDF,region,year, 'Public Transport in km'))
+            #print('found')
+        except:
+            publicTransport: float = -1.0
+        try:
+            privateTransport: float = float(getDataFromDF(transportPrivateDF,region,year, 'Private Transport in km'))
+            #print('found')
+        except:
+            privateTransport: float = -1.0
+        
+
         # print(f'{popDensity=}, {pm25=}, {roadArea=}, {greenArea=}')
-        newColumns.loc[index] = [popDensity, pm25, roadArea, greenArea]
+        newColumns.loc[index] = [popDensity, roadArea, greenArea, publicTransport, privateTransport]
     mergedDF: pd.DataFrame = pd.concat([proximityDF,newColumns],axis=1)
     print(mergedDF)
+    mergedDF.to_csv('compiledData.csv',index=False)
 
     print('-'*150)
     #Remove incomplete rows from the data to get the final compiled dataset
     incompleteRows: list = []
     for index, row in mergedDF.iterrows():
         complete: bool = True
-        # '0 to 10 km','>10 to 20 km','>20 to 50km', 'Population Density',
-        exclusionList : list[str] = [ 'Total Road Area','Total Greenery Area']
+        # '0 to 10 km','>10 to 20 km','>20 to 50km', 'Population Density','Total Road Area','Total Greenery Area', 'Public Transport Travel', 'Private Transport Travel' For testing
+        exclusionList : list[str] = [ 'Public Transport Travel'] #For testing
         for key, value in row.items():
-            ### Exclude 'PM2.5' from the incomplete check, for testing purposes. Remove for submission.
-            if key in exclusionList:
-                continue
+            if key in exclusionList: #For testing
+                continue #For testing
             if value == -1.0:
                 complete: bool = False
                 break
@@ -427,6 +480,8 @@ if __name__ == '__main__':
     data: pd.DataFrame = mergedDF.drop(incompleteRows, axis=0).reset_index()
     print('-'*150)
     print(data)
+    
+
     ### Linear regression, don't run until dataset is fixed
     # features = ['0 to 10 km', '>10 to 20 km', '>20 to 50km', 'Population Density']
     # target = ['PM2.5']

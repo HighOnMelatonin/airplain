@@ -425,11 +425,6 @@ def trimPM() -> bool:
     return True
 
 def carTravel() -> bool:
-    carTravelFile: str = "datafiles/carTravelByProvince.json"
-    outputFile: str = "datafiles/processedCarTravel.csv"
-
-    carTravelDict: dict[str, str] = openJson(carTravelFile)
-    regionMap: dict[str, str] = openJson("datafiles/regionMap.json")
 
     carTravelFile: str = "datafiles/transportTravelByProvince.json"
     outputPublicFile: str = "datafiles/processedCarTravelPublic.csv"
@@ -509,6 +504,8 @@ def getFiveNumberSummary(array: np.ndarray | pd.DataFrame) -> dict[str: int]:  #
     return min, q1, median, q3, max  # pyright: ignore[reportReturnType]
 
 def removeProblemCharacters(string: str) -> str:
+    if not isinstance(string, str):
+        return string
     problemCharacters: dict[str, str] = {"â" : 'a', "ú": 'u'}
     for problem, fixed in problemCharacters.items():
         string = string.replace(problem, fixed)
