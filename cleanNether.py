@@ -27,6 +27,98 @@ def openJson(filePath: str) -> dict:  # pyright: ignore[reportMissingTypeArgumen
     return data  # pyright: ignore[reportUnknownVariableType]
 
 
+def landUse() -> bool:
+    """
+    Returns True when the land use data has been processed, False otherwise
+
+    Outputs a csv file with the processed land use data
+
+    Ouptutfile: datafiles/processed_land_use.csv
+    """
+    regionCode: dict[str, str] = openJson("datafiles/regionMap.json")  # pyright: ignore[reportAssignmentType, reportUnknownVariableType, reportRedeclaration]
+    ## Dictionary structure: {region: {year: {roads: value, parks: value}}}
+    jsonOutput: dict[str, dict[str, dict[str, str]]] = {}
+    output: str = ''
+    landUseFile: str = "datafiles/Netherlands_land_use_main_road_park_and_public_garden.csv"
+
+    csvOutPath: str = "datafiles/processed_land_use.csv"
+    ## If output csv file does not exist, create it
+    if not os.path.exists(csvOutPath):
+        f = open(csvOutPath, 'x')
+        f.close()
+
+    rawLand: list[str] = open(landUseFile, 'r').readlines()[1:] ## Skip header row
+    for line in rawLand:
+        ## Every line in file looks like "ID,Regions,Periods,MainRoad_4,ParkAndPublicGarden_20"
+        entry: list[str] = line.split(",")
+        year: str = entry[2][0:4]       ## Get value of year  # pyright: ignore[reportRedeclaration]
+        region: str = ''  # pyright: ignore[reportRedeclaration]
+        ## Match the region code to the region name if it exists in the regionMap
+        if entry[1] in regionCode.keys():  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
+            region = regionCode[entry[1].strip()]  # pyright: ignore[reportArgumentType]
+
+        else:
+            region = entry[1].strip()
+
+        if region in jsonOutput.keys():
+            jsonOutput[region][year] = {"roads": entry[3].strip(), "parks": entry[4].strip()}
+
+        else:
+            jsonOutput[region] = {year: {"roads": entry[3].strip(), "parks": entry[4].strip()}}
+
+    ## Make a 3d array to conain all the data to be converted to csv
+    ## + 1 for the header row
+    region: str = list(jsonOutput.keys())[0]
+    xDim: int = len(jsonOutput[region]) + 1     ## Get the number of years
+    yDim: int = len(jsonOutput) + 1             ## Get the number of regions
+    array: list[list[list[str | tuple[str, str]]]] = [[[] for j in range(xDim)] for i in range(yDim)]
+
+    ## Populate first row with the years (cell 0,0 will be left empty)
+    column = 1
+    for year in jsonOutput[region]:
+        array[0][column] = [year]
+        column += 1
+
+    ## Populate the first column with the regions
+    row = 1
+    for region in jsonOutput:
+        array[row][0] = [region]
+        row += 1
+
+    ## Fill the rest of the cells with land use data
+    row = 1
+    while row < yDim:
+        column = 1
+        while column < xDim - 1:
+            regionCode: str = array[row][0][0]  # pyright: ignore[reportAssignmentType]
+            year: str = array[0][column][0]  # pyright: ignore[reportAssignmentType]
+            roads: str = jsonOutput[regionCode][year]["roads"]
+            parks: str = jsonOutput[regionCode][year]["parks"]
+            array[row][column] = [(roads, parks)]
+            column += 1
+
+        row += 1
+
+    ## Merges a 2D array into 1 line
+    def mergeLine(array2D: list[list[str | tuple[str, str]]]) -> str:
+        output = ''
+        for item in array2D:  # pyright: ignore[reportAssignmentType]
+            if item == []:
+                item: list[str] = ['']
+            
+            output += str(item[0]) + ','
+
+        return output
+
+    print(jsonOutput)
+    for line in array:
+        output += mergeLine(line) + '\n'
+
+    with open(csvOutPath, 'r+') as f:
+        print(output, file = f)
+    
+    return True
+
 def popDensity() -> bool:
     """
     Returns True when population density data has been processed, False otherwise.
@@ -39,13 +131,13 @@ def popDensity() -> bool:
     popDensityFile: str = "datafiles/Netherlands_population_density.csv"
 
     csvOutPath: str = "datafiles/processed_pop_density.csv"
-    # If output csv file does not exist, create it
+    ## If output csv file does not exist, create it
     if not os.path.exists(csvOutPath):
         f = open(csvOutPath, 'x')
         f.close()
 
     rawDensity: list[str] = open(popDensityFile, 'r').readlines()
-    rawDensity = rawDensity[1:]  # Skip the header row
+    rawDensity = rawDensity[1:]  ## Skip the header row
     with open(csvOutPath, 'w') as f:
         for line in rawDensity:
             entry: list[str] = line.split(sep=",")
@@ -69,9 +161,9 @@ def popDensity() -> bool:
 
 
     region: str = list(jsonOutput.keys())[0]
-    # Make a 3d array to contain all the data to be converted to csv
-    # +1 for the header row +1 for newline
-    xDim: int = len(jsonOutput[region]) + 2
+    ## Make a 3d array to contain all the data to be converted to csv
+    ## +1 for the header row
+    xDim: int = len(jsonOutput[region]) + 1
     yDim: int = len(jsonOutput) + 1  # +1 for the header column
     array: list[list[list[str]]] = [[[]for j in range(xDim)] for i in range(yDim)]
 
@@ -102,7 +194,7 @@ def popDensity() -> bool:
             column += 1
 
         row += 1
-
+        
     def mergeLine(array2D: list[list[str]]) -> str:
         output = ''
         for item in array2D:
@@ -112,7 +204,6 @@ def popDensity() -> bool:
             output += item[0] + ','
         
         return output[:-2]
-
     # Uncomment the next lines when region code has been fixed
     for line in array:
         output += mergeLine(line) + '\n'
@@ -300,8 +391,9 @@ if __name__ == "__main__":
         # print(translateRegionCode())
         # trimRegionCode("reregionCode")
         # print(popDensity())
-        print(trimPM())
+        # print(trimPM())
         # print(trimProximity())
+        print(landUse())
         pass
 
     except FileNotFoundError as e:
