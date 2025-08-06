@@ -314,11 +314,10 @@ def r2Score(y: np.ndarray, ypred: np.ndarray) -> float:
         - Computes ( 1 - (ssRes / ss_tot) ). 
     '''
     yDiff: np.ndarray = y - ypred
-    ssRes: np.ndarray = np.sum( yDiff.T @ yDiff, axis=0)
+    ssRes: np.ndarray = np.sum( yDiff.T @ yDiff )
     yMeanDiff: np.ndarray = y - y.mean()
-    ss_tot: np.ndarray = np.sum( yMeanDiff.T @ yMeanDiff, axis=0)
-    result = 1 - (ssRes / ss_tot)
-    return float(result.iloc[0])
+    ss_tot: np.ndarray = np.sum( yMeanDiff.T @ yMeanDiff )
+    return float(1 - (ssRes / ss_tot))
 
 def meanSquaredError(target: np.ndarray, pred: np.ndarray) -> float:
     '''
@@ -336,22 +335,14 @@ def meanSquaredError(target: np.ndarray, pred: np.ndarray) -> float:
     '''
 
     yDiff: np.ndarray = target - pred
-    total: np.ndarray = np.sum(yDiff.T @ yDiff, axis=0)
+    total: np.ndarray = np.sum(yDiff.T @ yDiff)
     n: int = target.shape[0]
-    result = total / n
-    return float(result.iloc[0])
+    return float(total / n)
 
 
 
 
 if __name__ == '__main__':
-    # print(cn.translateRegionCode())
-    # cn.trimRegionCode("reregionCode")
-    # print(cn.popDensity())
-    # print(cn.trimPM())
-    # print(cn.trimProximity())
-    # print(cn.landUse())
-    # print(cn.carTravel())
 
     #Grab the cleaned data
     print('-'*150)
@@ -390,7 +381,6 @@ if __name__ == '__main__':
         #print(f'{region=}, {type(region)=}, {year=}, {type(year)=}')
         #print(year, type(year))
         year = int(year)
-
         regionMatches: pd.Series = df["Region"] == region
         yearMatches: pd.Series = df["Year"] == year
         regionMatches: set = set(df.index[regionMatches].tolist())
@@ -403,7 +393,6 @@ if __name__ == '__main__':
         targetIndex: int = df.columns.get_loc(targetCol)
 
         output = df.iloc[desiredIndex,targetIndex]
-        # print('Success!')
         return output
 
 
@@ -508,27 +497,24 @@ if __name__ == '__main__':
 
 
     ### Linear regression, don't run until dataset is fixed
-    features = ['0 to 10 km','>10 to 20 km','>20 to 50km', 'Population Density','Total Road Area','Total Greenery Area', 'Public Transport Travel']
-    target = ['Private Transport Travel']
-    dataFeatures, dataTarget = getFeaturesTargets(data, features, target) 
-    dataFeaturesTrain, dataFeaturesTest, dataTargetTrain, dataTargetTest = splitData(dataFeatures, dataTarget, randomState=100, testSize=0.3)
-    model, J_storage = buildModelLinreg(dataFeaturesTrain, dataTargetTrain)
-    pred: np.ndarray = predictLinreg(dataFeaturesTrain.to_numpy(), model['beta'], model['means'], model['stds'])
+    # features = ['0 to 10 km', '>10 to 20 km', '>20 to 50km', 'Population Density']
+    # target = ['PM2.5']
+    # dataFeatures, dataTarget = getFeaturesTargets(data, features, target) 
+    # dataFeaturesTrain, dataFeaturesTest, dataTarget_train, dataTarget_test = splitData(dataFeatures, dataTarget, randomState=100, testSize=0.3)
+    # model, J_storage = buildModelLinreg(dataFeaturesTrain, dataTarget_train)
+    # pred: np.ndarray = predictLinreg(dataFeaturesTest.to_numpy(), model['beta'], model['means'], model['stds'])
 
-    import matplotlib.pyplot as plt
-    import matplotlib.axes as axes
+    # import matplotlib.pyplot as plt
+    # import matplotlib.axes as axes
 
-    print('-'*150)
-    print(f'{model["beta"]=}')
-    print(f'{model["means"]=}')
-    print(f'{model["stds"]=}')
+    # print('-'*150)
+    # print(f'{model["beta"]=}')
+    # print(f'{model["means"]=}')
+    # print(f'{model["stds"]=}')
 
-    ytrue: np.ndarray = dataTargetTrain
-    ypred: np.ndarray = pred
 
-    print(f'{r2Score(ytrue, ypred)=}')
-    print(f'{meanSquaredError(ytrue, ypred)=}')
     # for feature in features:
-    #     plt.scatter(dataFeaturesTest[feature], dataTargetTest)
+    #     plt.scatter(dataFeaturesTest[feature], dataTarget_test)
     #     plt.scatter(dataFeaturesTest[feature], pred)
+
 
