@@ -333,13 +333,13 @@ def meanSquaredError(target: np.ndarray, pred: np.ndarray) -> float:
 
 
 if __name__ == '__main__':
-    print(cn.translateRegionCode())
-    cn.trimRegionCode("reregionCode")
-    print(cn.popDensity())
-    print(cn.trimPM())
-    print(cn.trimProximity())
-    print(cn.landUse())
-    print(cn.carTravel())
+    # print(cn.translateRegionCode())
+    # cn.trimRegionCode("reregionCode")
+    # print(cn.popDensity())
+    # print(cn.trimPM())
+    # print(cn.trimProximity())
+    # print(cn.landUse())
+    # print(cn.carTravel())
 
     #Grab the cleaned data
     print('-'*150)
@@ -347,8 +347,8 @@ if __name__ == '__main__':
     # pmDF: pd.DataFrame = pd.read_csv('datafiles/processedPm2.5.csv',index_col=0).fillna(-1)
     proximityDF: pd.DataFrame = pd.read_csv('datafiles/processedProximity.csv')
     landUseDF: pd.DataFrame = pd.read_csv('datafiles/processedLandUse.csv',sep=";",index_col=0).fillna(-1) 
-    transportPublicDF: pd.DataFrame = pd.read_csv('datafiles/processedTravelPublic.csv')
-    transportPrivateDF: pd.DataFrame = pd.read_csv('datafiles/processedTravelPrivate.csv')
+    transportPublicDF: pd.DataFrame = pd.read_csv('datafiles/processedCarTravelPublic.csv')
+    transportPrivateDF: pd.DataFrame = pd.read_csv('datafiles/processedCarTravelPrivate.csv')
     print('-'*150)
     print(f'{popDensityDF=}')
     # print(f'{pmDF=}')
